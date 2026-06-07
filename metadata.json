@@ -1,0 +1,6 @@
+{
+  "name": "FIFA 2026 Heat Risk Observatory",
+  "description": "An intuitive climatological observatory assessing potential heat exposure risks associated with FIFA 2026 venues using weather and heat-stress indicators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
