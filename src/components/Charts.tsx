@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Stadium, MonthProfile, HourProfile } from '../data';
+import { Stadium, MonthProfile, HourProfile, getACGIHRiskCategory } from '../data';
 import { HelpCircle, Waves } from 'lucide-react';
+import { TempUnit, formatTemp } from '../tempUnit';
 
 // Custom Tooltip component for hover states
 interface TooltipData {
@@ -18,17 +19,19 @@ interface RankingBarChartProps {
   metric: 'avgWBGT' | 'maxWBGT' | 'avgTemp' | 'maxTemp';
   metricTitle: string;
   onSelectStadium?: (stadium: Stadium) => void;
+  activeThreshold: number;
+  tempUnit: TempUnit;
 }
 
-export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium }: RankingBarChartProps) {
+export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium, activeThreshold, tempUnit }: RankingBarChartProps) {
   const [hoveredIndex, setHoveredStadiumIndex] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
   const sortedData = [...stadiums].sort((a, b) => b[metric] - a[metric]);
   const maxVal = Math.max(...sortedData.map(d => d[metric]), 1);
 
-  // High-Risk thresholds: WBGT is 28.0C, Air Temp is 35.0C
-  const thresholdVal = metric.toLowerCase().includes('wbgt') ? 28.0 : 35.0;
+  // High-Risk thresholds: WBGT is dynamic activeThreshold, Air Temp is 35.0C
+  const thresholdVal = metric.toLowerCase().includes('wbgt') ? activeThreshold : 35.0;
   const showThreshold = maxVal >= thresholdVal;
 
   const chartWidth = 720;
@@ -79,7 +82,7 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
               <g key={index}>
                 <line x1={x} y1={5} x2={x} y2={chartHeight - 25} stroke="#f1f5f9" strokeWidth={1} />
                 <text x={x} y={chartHeight - 8} fill="#94a3b8" fontSize="10" textAnchor="middle" fontWeight="bold">
-                  {gridVal.toFixed(1)}°C
+                  {formatTemp(gridVal, tempUnit)}
                 </text>
               </g>
             );
@@ -95,10 +98,12 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
             // Pick color dynamically based on its WBGT values
             let color = "fill-emerald-600";
             if (metric.toLowerCase().includes('wbgt')) {
-              if (val >= 32) color = "fill-rose-950";
-              else if (val >= 30) color = "fill-red-600";
-              else if (val >= 28) color = "fill-orange-500";
-              else if (val >= 26) color = "fill-[#f4d35e]";
+              const cat = getACGIHRiskCategory(val, activeThreshold);
+              if (cat === 'Extreme') color = "fill-rose-950";
+              else if (cat === 'Very High') color = "fill-red-600";
+              else if (cat === 'High') color = "fill-orange-500";
+              else if (cat === 'Caution') color = "fill-[#f4d35e]";
+              else color = "fill-emerald-600";
             } else {
               // Temp coloring threshold equivalent
               if (val >= 38) color = "fill-rose-950";
@@ -120,7 +125,7 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
                     y: e.clientY,
                     title: d.name,
                     items: [
-                      { label: metricTitle, value: `${val.toFixed(1)}°C` },
+                      { label: metricTitle, value: formatTemp(val, tempUnit) },
                       { label: "Assigned Team", value: d.assignedTeam },
                       { label: "Location", value: `${d.stadiumName.split('(')[1]?.split(',')[0] || d.name}, ${d.country}` },
                       { label: "Type", value: `${d.type === 'Match' ? 'Match Stadium' : 'Training Facility'}` }
@@ -179,7 +184,7 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
                   fontSize="11"
                   fontWeight="bold"
                 >
-                  {val.toFixed(1)}°
+                  {formatTemp(val, tempUnit, false)}°
                 </text>
               </g>
             );
@@ -215,7 +220,7 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
                 fontWeight="extrabold"
                 textAnchor="middle"
               >
-                RISK THRESHOLD ({thresholdVal}°C)
+                RISK THRESHOLD ({formatTemp(thresholdVal, tempUnit)})
               </text>
             </g>
           )}
@@ -228,7 +233,7 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
           <HelpCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div>
             <span className="font-bold block mb-1">Standardized Threshold Alert:</span>
-            Conditions above the <strong className="text-red-700 underline decoration-dashed">Red Dashed Line ({thresholdVal}°C)</strong> are associated with increased risk of physical heat exhaustion, heat cramps, and cognitive/cardiovascular performance dropouts on personnel.
+            Conditions above the <strong className="text-red-700 underline decoration-dashed">Red Dashed Line ({formatTemp(thresholdVal, tempUnit)})</strong> are associated with increased risk of physical heat exhaustion, heat cramps, and cognitive/cardiovascular performance dropouts on personnel.
           </div>
         </div>
       )}
@@ -260,68 +265,98 @@ export function RankingBarChart({ stadiums, metric, metricTitle, onSelectStadium
 interface MonthlyComboChartProps {
   months: MonthProfile[];
   title: string;
+  activeThreshold: number;
+  tempUnit: TempUnit;
 }
 
-export function MonthlyComboChart({ months, title }: MonthlyComboChartProps) {
+export function MonthlyComboChart({ months, title, activeThreshold, tempUnit }: MonthlyComboChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
   const chartW = 750;
   const chartH = 280;
-  const padding = { top: 25, right: 40, bottom: 35, left: 45 };
+  const padding = { top: 25, right: 45, bottom: 35, left: 55 };
 
   const plotW = chartW - padding.left - padding.right;
   const plotH = chartH - padding.top - padding.bottom;
 
-  // Max scale calculation
-  const maxTemp = Math.max(...months.map(m => m.maxWBGT || 0), 1);
-  const maxScaled = maxTemp * 1.15;
+  // Max hours is 730
+  const maxScaled = 730;
+  // Peak temperature scale
+  const maxTempScale = 40.0;
 
-  const thresholdY = padding.top + plotH - ((28.0 / maxScaled) * plotH);
+  const thresholdY = padding.top + plotH - ((activeThreshold / maxTempScale) * plotH);
 
   return (
     <div className="relative bg-white p-4 border border-slate-200 rounded-xl">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
         <div>
-          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1 uppercase tracking-wide">
+          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1 uppercase tracking-wide font-sans">
             Annual Climatology Profile
           </h4>
           <p className="text-[11px] text-slate-500 font-medium">{title}</p>
         </div>
-        <div className="flex gap-4 text-xs font-semibold">
-          <div className="flex items-center gap-1.5 text-slate-600">
-            <span className="w-3 h-1.5 bg-emerald-500 inline-block rounded-xs"></span>
-            <span>Avg WBGT</span>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-bold font-sans animate-fade-in">
+          <div className="flex items-center gap-1 text-slate-600">
+            <span className="w-2.5 h-2.5 bg-emerald-500 inline-block rounded-xs"></span>
+            <span>Safe (hrs)</span>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-600">
-            <span className="w-3 h-0.5 border-t-2 border-red-500 inline-block"></span>
-            <span>Peak Monthly WBGT</span>
+          <div className="flex items-center gap-1 text-[#eab308]">
+            <span className="w-2.5 h-2.5 bg-[#f4d35e] inline-block rounded-xs"></span>
+            <span>Caution (hrs)</span>
           </div>
-          <div className="flex items-center gap-1.5 text-red-600 font-bold">
-            <span className="w-4 border-t-2 border-dashed border-red-600 inline-block"></span>
-            <span>Heat Threshold (28°C)</span>
+          <div className="flex items-center gap-1 text-orange-500">
+            <span className="w-2.5 h-2.5 bg-[#f28c28] inline-block rounded-xs"></span>
+            <span>High (hrs)</span>
+          </div>
+          <div className="flex items-center gap-1 text-red-600">
+            <span className="w-2.5 h-2.5 bg-[#c1292e] inline-block rounded-xs"></span>
+            <span>Very High (hrs)</span>
+          </div>
+          <div className="flex items-center gap-1 text-rose-955">
+            <span className="w-2.5 h-2.5 bg-[#6a040f] inline-block rounded-xs"></span>
+            <span>Extreme (hrs)</span>
+          </div>
+          <div className="flex items-center gap-1 text-slate-600">
+            <span className="w-3.5 border-t-2 border-red-500 inline-block"></span>
+            <span>Peak WBGT Limit</span>
+          </div>
+          <div className="flex items-center gap-1 text-red-655 font-bold">
+            <span className="w-3.5 border-t-1.5 border-dashed border-red-600 inline-block"></span>
+            <span>Threshold ({formatTemp(activeThreshold, tempUnit)})</span>
           </div>
         </div>
       </div>
 
       <div className="overflow-x-auto">
         <svg width="100%" height={chartH} viewBox={`0 0 ${chartW} ${chartH}`} className="min-w-[620px] overflow-visible">
-          {/* Temperature Y-Axis markings */}
-          {[10, 20, 30, 40].map((val) => {
-            if (val > maxScaled) return null;
+          {/* Temperature Y-Axis markings (Left - Hours) */}
+          {[150, 300, 450, 600, 730].map((val) => {
             const y = padding.top + plotH - ((val / maxScaled) * plotH);
             return (
-              <g key={val}>
+              <g key={`l-${val}`}>
                 <line x1={padding.left} y1={y} x2={chartW - padding.right} y2={y} stroke="#f1f5f9" strokeWidth={1} />
-                <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold">
-                  {val}°C
+                <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold" className="font-mono">
+                  {val}h
                 </text>
               </g>
             );
           })}
 
-          {/* Dotted mandate Red line */}
-          {maxScaled >= 28.0 && (
+          {/* Temperature Y-Axis markings (Right - Temperature) */}
+          {[10, 20, 30, 40].map((val) => {
+            const y = padding.top + plotH - ((val / maxTempScale) * plotH);
+            return (
+              <g key={`r-${val}`}>
+                <text x={chartW - padding.right + 8} y={y + 4} fill="#ef4444" fontSize="10" textAnchor="start" fontWeight="bold" className="font-mono">
+                  {formatTemp(val, tempUnit)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Dotted mandate Red line using dynamic activeThreshold mapped to right scale */}
+          {activeThreshold <= maxTempScale && (
             <g className="pointer-events-none">
               <line
                 x1={padding.left}
@@ -339,61 +374,129 @@ export function MonthlyComboChart({ months, title }: MonthlyComboChartProps) {
                 fontSize="8"
                 fontWeight="extrabold"
                 textAnchor="end"
+                className="font-sans"
               >
-                HIGH RISK THRESHOLD (28°C WBGT)
+                OCCUPATIONAL LIMIT ({formatTemp(activeThreshold, tempUnit)} WBGT)
               </text>
             </g>
           )}
 
-          {/* Draw Average monthly bars */}
+          {/* Draw stacked monthly hours */}
           {months.map((m, i) => {
             const x = padding.left + i * (plotW / months.length) + 6;
             const bWidth = Math.max(12, plotW / months.length - 12);
-            const bHeight = ((m.avgWBGT || 0) / maxScaled) * plotH;
+            
+            const sh = m.safeHours ?? 730;
+            const ch = m.cautionHours ?? 0;
+            const hh = m.acgihHighHours ?? 0;
+            const vh = m.acgihVeryHighHours ?? 0;
+            const eh = m.acgihExtremeHours ?? 0;
+
+            const shH = (sh / maxScaled) * plotH;
+            const chH = (ch / maxScaled) * plotH;
+            const hhH = (hh / maxScaled) * plotH;
+            const vhH = (vh / maxScaled) * plotH;
+            const ehH = (eh / maxScaled) * plotH;
+
             const isHovered = hoveredIdx === i;
 
             return (
-              <rect
-                key={m.month}
-                x={x}
-                y={padding.top + plotH - bHeight}
-                width={bWidth}
-                height={Math.max(bHeight, 1)}
-                fill={m.avgWBGT >= 28 ? "#f28c28" : m.avgWBGT >= 26 ? "#eab308" : "#10b981"}
-                className="transition-all duration-300 opacity-85 hover:opacity-100 hover:brightness-95 cursor-pointer"
-                rx={1.5}
-                onMouseEnter={(e) => {
-                  setHoveredIdx(i);
-                  setTooltip({
-                    x: e.clientX,
-                    y: e.clientY,
-                    title: `${m.name} Profile`,
-                    items: [
-                      { label: "Avg WBGT", value: `${m.avgWBGT.toFixed(1)}°C` },
-                      { label: "Max WBGT Limit", value: `${m.maxWBGT.toFixed(1)}°C` },
-                      { label: "Avg Climate Temp", value: `${m.avgTemp.toFixed(1)}°C` },
-                      { label: "Avg Humidity", value: `${m.avgRH.toFixed(0)}%` },
-                    ]
-                  });
-                }}
-                onMouseMove={(e) => {
-                  if (tooltip) {
-                    setTooltip({ ...tooltip, x: e.clientX, y: e.clientY });
-                  }
-                }}
-                onMouseLeave={() => {
-                  setHoveredIdx(null);
-                  setTooltip(null);
-                }}
-              />
+              <g key={m.month}>
+                {/* Safe */}
+                <rect
+                  x={x}
+                  y={padding.top + plotH - shH}
+                  width={bWidth}
+                  height={shH}
+                  fill="#10b981"
+                  opacity={isHovered ? 1.0 : 0.8}
+                  className="transition-all duration-300"
+                />
+                {/* Caution */}
+                <rect
+                  x={x}
+                  y={padding.top + plotH - shH - chH}
+                  width={bWidth}
+                  height={chH}
+                  fill="#f4d35e"
+                  opacity={isHovered ? 1.0 : 0.8}
+                  className="transition-all duration-300"
+                />
+                {/* High */}
+                <rect
+                  x={x}
+                  y={padding.top + plotH - shH - chH - hhH}
+                  width={bWidth}
+                  height={hhH}
+                  fill="#f28c28"
+                  opacity={isHovered ? 1.0 : 0.8}
+                  className="transition-all duration-300"
+                />
+                {/* Very High */}
+                <rect
+                  x={x}
+                  y={padding.top + plotH - shH - chH - hhH - vhH}
+                  width={bWidth}
+                  height={vhH}
+                  fill="#c1292e"
+                  opacity={isHovered ? 1.0 : 0.8}
+                  className="transition-all duration-300"
+                />
+                {/* Extreme */}
+                <rect
+                  x={x}
+                  y={padding.top + plotH - shH - chH - hhH - vhH - ehH}
+                  width={bWidth}
+                  height={ehH}
+                  fill="#6a040f"
+                  opacity={isHovered ? 1.0 : 0.8}
+                  className="transition-all duration-300"
+                />
+
+                {/* Sensory Overlay */}
+                <rect
+                  x={x - 2}
+                  y={padding.top}
+                  width={bWidth + 4}
+                  height={plotH}
+                  fill="transparent"
+                  className="cursor-pointer"
+                  onMouseEnter={(e) => {
+                    setHoveredIdx(i);
+                    setTooltip({
+                      x: e.clientX,
+                      y: e.clientY,
+                      title: `${m.name} Monthly Distribution`,
+                      items: [
+                        { label: "Safe Zone", value: `${sh.toFixed(0)} hrs`, color: "#10b981" },
+                        { label: "Caution Zone", value: `${ch.toFixed(0)} hrs`, color: "#f4d35e" },
+                        { label: "High Risk Zone", value: `${hh.toFixed(0)} hrs`, color: "#f28c28" },
+                        { label: "Very High Zone", value: `${vh.toFixed(0)} hrs`, color: "#c1292e" },
+                        { label: "Extreme Zone", value: `${eh.toFixed(0)} hrs`, color: "#6a040f" },
+                        { label: "Total Exceedance", value: `${(hh + vh + eh).toFixed(0)} hrs`, color: "#dc2626" },
+                        { label: "Peak WBGT Limit", value: formatTemp(m.maxWBGT, tempUnit), color: "#ef4444" },
+                      ]
+                    });
+                  }}
+                  onMouseMove={(e) => {
+                    if (tooltip) {
+                      setTooltip({ ...tooltip, x: e.clientX, y: e.clientY });
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredIdx(null);
+                    setTooltip(null);
+                  }}
+                />
+              </g>
             );
           })}
 
-          {/* Line for peak maximum monthly WBGT limits */}
+          {/* Line for peak maximum monthly WBGT limits using maxTempScale right-side Y axis */}
           {(() => {
             const pts = months.map((m, i) => {
               const x = padding.left + i * (plotW / months.length) + (plotW / months.length) / 2;
-              const y = padding.top + plotH - ((m.maxWBGT || 0) / maxScaled) * plotH;
+              const y = padding.top + plotH - ((m.maxWBGT || 0) / maxTempScale) * plotH;
               return { x, y };
             });
 
@@ -433,6 +536,7 @@ export function MonthlyComboChart({ months, title }: MonthlyComboChartProps) {
                 fontSize="11"
                 fontWeight="semibold"
                 textAnchor="middle"
+                className="font-sans"
               >
                 {m.name}
               </text>
@@ -454,14 +558,17 @@ export function MonthlyComboChart({ months, title }: MonthlyComboChartProps) {
       {/* Floating tooltip markup */}
       {tooltip && (
         <div
-          className="fixed z-50 bg-slate-900 border border-slate-800 text-white p-3 rounded-lg text-xs shadow-lg pointer-events-none"
+          className="fixed z-50 bg-slate-900 border border-slate-800 text-white p-3 rounded-lg text-xs shadow-lg pointer-events-none font-sans"
           style={{ left: `${tooltip.x + 15}px`, top: `${tooltip.y - 15}px` }}
         >
-          <div className="font-bold border-b border-slate-800 pb-1 mb-1.5 text-yellow-400">{tooltip.title}</div>
+          <div className="font-bold border-b border-slate-800/60 pb-1 mb-1.5 text-yellow-400">{tooltip.title}</div>
           <div className="space-y-1 text-[11px]">
             {tooltip.items.map((it, i) => (
               <div key={i} className="flex justify-between gap-6">
-                <span>{it.label}:</span>
+                <span className="flex items-center gap-1.5">
+                  {it.color && <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: it.color }} />}
+                  <span>{it.label}:</span>
+                </span>
                 <span className="font-bold text-white text-right">{it.value}</span>
               </div>
             ))}
@@ -479,9 +586,11 @@ interface HourlyTrendChartProps {
   hours: HourProfile[];
   title: string;
   analysisView?: string;
+  activeThreshold: number;
+  tempUnit: TempUnit;
 }
 
-export function HourlyTrendChart({ hours, title, analysisView }: HourlyTrendChartProps) {
+export function HourlyTrendChart({ hours, title, analysisView, activeThreshold, tempUnit }: HourlyTrendChartProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
@@ -497,7 +606,7 @@ export function HourlyTrendChart({ hours, title, analysisView }: HourlyTrendChar
   const maxVal = Math.max(...hours.map(h => h.avgTemp), ...displayWBGT, 1);
   const maxScaled = maxVal * 1.15;
 
-  const thresholdY = padding.top + plotH - ((28.0 / maxScaled) * plotH);
+  const thresholdY = padding.top + plotH - ((activeThreshold / maxScaled) * plotH);
 
   // Generate path points
   const pointsWBGT = hours.map((h, i) => {
@@ -531,9 +640,9 @@ export function HourlyTrendChart({ hours, title, analysisView }: HourlyTrendChar
             <span className="w-3.5 h-0.5 border-t-2 border-blue-500 inline-block"></span>
             <span>{isExtreme ? 'Peak Air Temp' : 'Avg Air Temp'}</span>
           </div>
-          <div className="flex items-center gap-1 text-red-600 font-bold">
+          <div className="flex items-center gap-1 text-red-656 font-bold">
             <span className="w-3 px-1 border-t border-dashed border-red-600 inline-block"></span>
-            <span>Risk Limit (28°C)</span>
+            <span>Risk Limit ({formatTemp(activeThreshold, tempUnit)})</span>
           </div>
         </div>
       </div>
@@ -547,14 +656,14 @@ export function HourlyTrendChart({ hours, title, analysisView }: HourlyTrendChar
               <g key={val}>
                 <line x1={padding.left} y1={y} x2={chartW - padding.right} y2={y} stroke="#f1f5f9" strokeWidth={1} />
                 <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold">
-                  {val}°C
+                  {formatTemp(val, tempUnit)}
                 </text>
               </g>
             );
           })}
 
           {/* Red line */}
-          {maxScaled >= 28.0 && (
+          {maxScaled >= activeThreshold && (
             <line
               x1={padding.left}
               y1={thresholdY}
@@ -627,14 +736,16 @@ export function HourlyTrendChart({ hours, title, analysisView }: HourlyTrendChar
                   className="cursor-crosshair"
                   onMouseEnter={(e) => {
                     setHoveredIdx(i);
+                    const cat = getACGIHRiskCategory(currentWBGT, activeThreshold);
                     setTooltip({
                       x: e.clientX,
                       y: e.clientY,
                       title: `Hour ${h.hour}:00 Local`,
                       items: [
-                        { label: isExtreme ? "Peak WBGT Stress" : "Avg WBGT Stress", value: `${currentWBGT.toFixed(1)}°C` },
-                        { label: isExtreme ? "Peak Air Temp" : "Avg Air Temp", value: `${h.avgTemp.toFixed(1)}°C` },
-                        { label: "Risk Category", value: currentWBGT >= 28 ? 'High Risk' : currentWBGT >= 26 ? 'Moderate' : 'Low Risk' }
+                        { label: isExtreme ? "Peak WBGT Stress" : "Avg WBGT Stress", value: formatTemp(currentWBGT, tempUnit) },
+                        { label: isExtreme ? "Peak Air Temp" : "Avg Air Temp", value: formatTemp(h.avgTemp, tempUnit) },
+                        { label: "Occupational OEL", value: formatTemp(activeThreshold, tempUnit) },
+                        { label: "Risk Category", value: cat }
                       ]
                     });
                   }}

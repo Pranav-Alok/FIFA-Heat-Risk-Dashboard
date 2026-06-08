@@ -1,0 +1,1031 @@
+{
+  "heavy_25_75": {
+    "scenario": "heavy_25_75",
+    "surface": "Concrete Surface",
+    "workload": "Heavy",
+    "workRest": "25_75",
+    "threshold": 30.0,
+    "events": [
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-06-27",
+        "peakWBGT": 29.7,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-06-26",
+        "peakWBGT": 29.55,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-22",
+        "peakWBGT": 29.52,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-23",
+        "peakWBGT": 29.48,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-20",
+        "peakWBGT": 29.31,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-18",
+        "peakWBGT": 29.14,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-17",
+        "peakWBGT": 29.07,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-08",
+        "peakWBGT": 29.0,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-08-16",
+        "peakWBGT": 28.93,
+        "classification": "caution"
+      },
+      {
+        "venue": "ATT_Dallas",
+        "date": "2024-06-04",
+        "peakWBGT": 28.89,
+        "classification": "caution"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2024-06-13",
+        "peakWBGT": 33.34,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2025-08-31",
+        "peakWBGT": 32.8,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2026-05-13",
+        "peakWBGT": 32.25,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2024-06-14",
+        "peakWBGT": 32.09,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2025-05-28",
+        "peakWBGT": 31.91,
+        "classification": "high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2025-07-20",
+        "peakWBGT": 31.9,
+        "classification": "high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2024-02-25",
+        "peakWBGT": 31.5,
+        "classification": "high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2024-07-08",
+        "peakWBGT": 31.43,
+        "classification": "high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2024-07-19",
+        "peakWBGT": 31.2,
+        "classification": "high"
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "date": "2025-07-06",
+        "peakWBGT": 30.96,
+        "classification": "high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-07-23",
+        "peakWBGT": 33.67,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-07-22",
+        "peakWBGT": 32.91,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2025-07-25",
+        "peakWBGT": 32.86,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2025-07-28",
+        "peakWBGT": 32.47,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2025-07-27",
+        "peakWBGT": 32.39,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2025-07-29",
+        "peakWBGT": 32.37,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-06-23",
+        "peakWBGT": 32.23,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-08-27",
+        "peakWBGT": 32.15,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-08-26",
+        "peakWBGT": 31.91,
+        "classification": "high"
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "date": "2024-07-31",
+        "peakWBGT": 31.83,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-05-11",
+        "peakWBGT": 31.21,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-05-28",
+        "peakWBGT": 31.0,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-05-29",
+        "peakWBGT": 30.85,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2026-05-07",
+        "peakWBGT": 30.64,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-04-16",
+        "peakWBGT": 30.61,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-07-15",
+        "peakWBGT": 30.23,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-09-14",
+        "peakWBGT": 30.22,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2025-09-02",
+        "peakWBGT": 30.11,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-08-29",
+        "peakWBGT": 30.07,
+        "classification": "high"
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "date": "2024-04-17",
+        "peakWBGT": 29.44,
+        "classification": "caution"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-05-25",
+        "peakWBGT": 31.64,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-05-27",
+        "peakWBGT": 31.56,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-06-04",
+        "peakWBGT": 31.45,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-05-22",
+        "peakWBGT": 31.42,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2026-04-29",
+        "peakWBGT": 31.16,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-06-03",
+        "peakWBGT": 30.99,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-05-26",
+        "peakWBGT": 30.91,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2026-04-28",
+        "peakWBGT": 30.85,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2026-05-06",
+        "peakWBGT": 30.7,
+        "classification": "high"
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "date": "2024-05-28",
+        "peakWBGT": 30.67,
+        "classification": "high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-07-09",
+        "peakWBGT": 33.79,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2025-08-23",
+        "peakWBGT": 33.45,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-08-09",
+        "peakWBGT": 33.23,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-09-05",
+        "peakWBGT": 33.14,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-07-10",
+        "peakWBGT": 33.08,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-09-07",
+        "peakWBGT": 32.86,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-09-06",
+        "peakWBGT": 32.73,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2025-08-11",
+        "peakWBGT": 32.67,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2025-08-24",
+        "peakWBGT": 32.44,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "date": "2024-08-17",
+        "peakWBGT": 32.23,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-06-20",
+        "peakWBGT": 33.94,
+        "classification": "very_high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-07-13",
+        "peakWBGT": 30.83,
+        "classification": "high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2025-06-25",
+        "peakWBGT": 30.62,
+        "classification": "high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2025-06-22",
+        "peakWBGT": 30.6,
+        "classification": "high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-07-21",
+        "peakWBGT": 30.26,
+        "classification": "high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-08-13",
+        "peakWBGT": 30.22,
+        "classification": "high"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-06-19",
+        "peakWBGT": 29.79,
+        "classification": "caution"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2024-06-18",
+        "peakWBGT": 29.55,
+        "classification": "caution"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2025-06-24",
+        "peakWBGT": 29.46,
+        "classification": "caution"
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "date": "2025-06-23",
+        "peakWBGT": 29.4,
+        "classification": "caution"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-06-23",
+        "peakWBGT": 38.24,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-06-24",
+        "peakWBGT": 37.86,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-07-30",
+        "peakWBGT": 37.06,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-06-05",
+        "peakWBGT": 36.45,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-06-25",
+        "peakWBGT": 36.41,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2024-06-20",
+        "peakWBGT": 36.36,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2025-07-29",
+        "peakWBGT": 36.1,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2024-07-08",
+        "peakWBGT": 36.04,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2024-08-05",
+        "peakWBGT": 35.86,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Gillette_Boston",
+        "date": "2024-08-02",
+        "peakWBGT": 35.83,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2024-09-13",
+        "peakWBGT": 39.1,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2025-07-13",
+        "peakWBGT": 37.84,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2024-08-14",
+        "peakWBGT": 37.62,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2024-05-29",
+        "peakWBGT": 36.68,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2025-08-30",
+        "peakWBGT": 36.28,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2025-08-22",
+        "peakWBGT": 36.27,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2024-07-10",
+        "peakWBGT": 35.23,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2024-06-28",
+        "peakWBGT": 35.0,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2025-07-29",
+        "peakWBGT": 34.85,
+        "classification": "extreme"
+      },
+      {
+        "venue": "HardRock_Miami",
+        "date": "2025-08-26",
+        "peakWBGT": 34.64,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2026-03-18",
+        "peakWBGT": 31.81,
+        "classification": "high"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-07-11",
+        "peakWBGT": 31.25,
+        "classification": "high"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-09-23",
+        "peakWBGT": 30.46,
+        "classification": "high"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2025-09-01",
+        "peakWBGT": 29.88,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-09-03",
+        "peakWBGT": 29.75,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-10-01",
+        "peakWBGT": 29.38,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-07-06",
+        "peakWBGT": 29.32,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-07-10",
+        "peakWBGT": 28.98,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2024-07-03",
+        "peakWBGT": 28.83,
+        "classification": "caution"
+      },
+      {
+        "venue": "Levis_SF",
+        "date": "2025-09-23",
+        "peakWBGT": 28.81,
+        "classification": "caution"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-07-29",
+        "peakWBGT": 36.56,
+        "classification": "extreme"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2024-07-07",
+        "peakWBGT": 34.89,
+        "classification": "extreme"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2024-08-27",
+        "peakWBGT": 34.52,
+        "classification": "extreme"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-06-23",
+        "peakWBGT": 34.17,
+        "classification": "extreme"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2024-07-06",
+        "peakWBGT": 33.22,
+        "classification": "very_high"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-06-24",
+        "peakWBGT": 32.65,
+        "classification": "very_high"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-06-25",
+        "peakWBGT": 32.27,
+        "classification": "very_high"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-07-08",
+        "peakWBGT": 32.13,
+        "classification": "very_high"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2025-07-25",
+        "peakWBGT": 32.01,
+        "classification": "very_high"
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "date": "2024-08-02",
+        "peakWBGT": 31.99,
+        "classification": "high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-08-09",
+        "peakWBGT": 34.17,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2025-08-12",
+        "peakWBGT": 33.64,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-08-10",
+        "peakWBGT": 33.24,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-08-03",
+        "peakWBGT": 32.99,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-09-01",
+        "peakWBGT": 32.84,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-07-10",
+        "peakWBGT": 32.61,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-07-15",
+        "peakWBGT": 31.73,
+        "classification": "high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-07-14",
+        "peakWBGT": 31.58,
+        "classification": "high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2024-07-20",
+        "peakWBGT": 31.56,
+        "classification": "high"
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "date": "2025-06-09",
+        "peakWBGT": 31.41,
+        "classification": "high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2025-06-01",
+        "peakWBGT": 37.12,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-08-10",
+        "peakWBGT": 35.44,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-08-02",
+        "peakWBGT": 34.65,
+        "classification": "extreme"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2025-05-29",
+        "peakWBGT": 33.44,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2025-08-13",
+        "peakWBGT": 33.33,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-08-06",
+        "peakWBGT": 33.05,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-06-27",
+        "peakWBGT": 33.0,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-07-10",
+        "peakWBGT": 32.89,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2025-08-18",
+        "peakWBGT": 32.85,
+        "classification": "very_high"
+      },
+      {
+        "venue": "Mansfield_TX",
+        "date": "2024-08-22",
+        "peakWBGT": 32.73,
+        "classification": "very_high"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2024-08-01",
+        "peakWBGT": 27.98,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2024-07-08",
+        "peakWBGT": 27.95,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2025-07-29",
+        "peakWBGT": 27.93,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2025-07-28",
+        "peakWBGT": 27.93,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2024-08-17",
+        "peakWBGT": 27.91,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2025-07-31",
+        "peakWBGT": 27.68,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2024-07-05",
+        "peakWBGT": 27.64,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2025-07-30",
+        "peakWBGT": 27.55,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2024-07-31",
+        "peakWBGT": 27.55,
+        "classification": "caution"
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "date": "2025-06-24",
+        "peakWBGT": 27.53,
+        "classification": "caution"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2025-06-23",
+        "peakWBGT": 39.14,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2025-07-29",
+        "peakWBGT": 37.99,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2024-06-22",
+        "peakWBGT": 37.83,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2024-07-08",
+        "peakWBGT": 37.0,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2025-06-24",
+        "peakWBGT": 36.63,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2024-07-07",
+        "peakWBGT": 36.54,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2024-06-21",
+        "peakWBGT": 36.48,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2025-07-28",
+        "peakWBGT": 36.45,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2024-07-06",
+        "peakWBGT": 36.4,
+        "classification": "extreme"
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "date": "2025-07-15",
+        "peakWBGT": 36.34,
+        "classification": "extreme"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-05-27",
+        "peakWBGT": 29.65,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-08-09",
+        "peakWBGT": 29.5,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-05-28",
+        "peakWBGT": 29.48,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-06-29",
+        "peakWBGT": 29.31,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-08-21",
+        "peakWBGT": 29.24,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2025-08-16",
+        "peakWBGT": 29.21,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-08-19",
+        "peakWBGT": 29.05,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2024-06-25",
+        "peakWBGT": 29.05,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2025-08-18",
+        "peakWBGT": 29.05,
+        "classification": "caution"
+      },
+      {
+        "venue": "NRG_Houston",
+        "date": "2025-08-14",
+        "peakWBGT": 29.02,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-09-06",
+        "peakWBGT": 33.87,
+        "classification": "very_high"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-09-05",
+        "peakWBGT": 30.73,
+        "classification": "high"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-09-08",
+        "peakWBGT": 29.79,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-09-07",
+        "peakWBGT": 29.68,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-07-13",
+        "peakWBGT": 29.27,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-07-05",
+        "peakWBGT": 29.23,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2026-03-20",
+        "peakWBGT": 29.21,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2026-03-17",
+        "peakWBGT": 29.09,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2025-09-02",
+        "peakWBGT": 28.87,
+        "classification": "caution"
+      },
+      {
+        "venue": "SoFi_LA",
+        "date": "2024-09-09",
+        "peakWBGT": 28.81,
+        "classification": "caution"
+      }
+    ]
+  }
+}

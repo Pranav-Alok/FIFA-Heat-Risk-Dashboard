@@ -1,0 +1,1847 @@
+{
+  "heavy_25_75": {
+    "scenario": "heavy_25_75",
+    "surface": "Concrete Surface",
+    "workload": "Heavy",
+    "workRest": "25_75",
+    "threshold": 30.0,
+    "monthly": [
+      {
+        "venue": "ATT_Dallas",
+        "month": 1,
+        "meanWBGT": 3.95,
+        "maxWBGT": 19.17,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 2,
+        "meanWBGT": 9.69,
+        "maxWBGT": 22.92,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 3,
+        "meanWBGT": 14.08,
+        "maxWBGT": 23.32,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 4,
+        "meanWBGT": 17.47,
+        "maxWBGT": 26.4,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 5,
+        "meanWBGT": 20.62,
+        "maxWBGT": 28.48,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 6,
+        "meanWBGT": 24.65,
+        "maxWBGT": 29.7,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 7,
+        "meanWBGT": 25.0,
+        "maxWBGT": 28.61,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 8,
+        "meanWBGT": 25.43,
+        "maxWBGT": 29.52,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 9,
+        "meanWBGT": 22.0,
+        "maxWBGT": 28.12,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 10,
+        "meanWBGT": 18.56,
+        "maxWBGT": 24.99,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 11,
+        "meanWBGT": 13.54,
+        "maxWBGT": 23.99,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "ATT_Dallas",
+        "month": 12,
+        "meanWBGT": 9.43,
+        "maxWBGT": 22.5,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 1,
+        "meanWBGT": 13.72,
+        "maxWBGT": 26.97,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 2,
+        "meanWBGT": 14.85,
+        "maxWBGT": 31.5,
+        "hoursAboveThreshold": 3,
+        "percentHoursAboveThreshold": 0.15,
+        "percentDaysAboveThreshold": 1.14
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 3,
+        "meanWBGT": 15.24,
+        "maxWBGT": 27.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 4,
+        "meanWBGT": 16.99,
+        "maxWBGT": 27.28,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 5,
+        "meanWBGT": 19.15,
+        "maxWBGT": 32.25,
+        "hoursAboveThreshold": 5,
+        "percentHoursAboveThreshold": 0.23,
+        "percentDaysAboveThreshold": 3.26
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 6,
+        "meanWBGT": 20.55,
+        "maxWBGT": 33.34,
+        "hoursAboveThreshold": 3,
+        "percentHoursAboveThreshold": 0.21,
+        "percentDaysAboveThreshold": 4.84
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 7,
+        "meanWBGT": 20.09,
+        "maxWBGT": 31.9,
+        "hoursAboveThreshold": 12,
+        "percentHoursAboveThreshold": 0.81,
+        "percentDaysAboveThreshold": 10.94
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 8,
+        "meanWBGT": 20.19,
+        "maxWBGT": 32.8,
+        "hoursAboveThreshold": 3,
+        "percentHoursAboveThreshold": 0.2,
+        "percentDaysAboveThreshold": 3.12
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 9,
+        "meanWBGT": 19.97,
+        "maxWBGT": 30.24,
+        "hoursAboveThreshold": 2,
+        "percentHoursAboveThreshold": 0.14,
+        "percentDaysAboveThreshold": 3.23
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 10,
+        "meanWBGT": 17.84,
+        "maxWBGT": 30.31,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 11,
+        "meanWBGT": 16.37,
+        "maxWBGT": 29.75,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Akron_Guadalajara",
+        "month": 12,
+        "meanWBGT": 14.59,
+        "maxWBGT": 28.09,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 1,
+        "meanWBGT": -4.02,
+        "maxWBGT": 15.39,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 2,
+        "meanWBGT": 2.29,
+        "maxWBGT": 19.53,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 3,
+        "meanWBGT": 8.64,
+        "maxWBGT": 26.03,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 4,
+        "meanWBGT": 13.16,
+        "maxWBGT": 29.81,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 5,
+        "meanWBGT": 16.87,
+        "maxWBGT": 27.78,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 6,
+        "meanWBGT": 23.08,
+        "maxWBGT": 32.23,
+        "hoursAboveThreshold": 29,
+        "percentHoursAboveThreshold": 2.01,
+        "percentDaysAboveThreshold": 17.74
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 7,
+        "meanWBGT": 24.84,
+        "maxWBGT": 33.67,
+        "hoursAboveThreshold": 119,
+        "percentHoursAboveThreshold": 8.0,
+        "percentDaysAboveThreshold": 40.62
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 8,
+        "meanWBGT": 23.06,
+        "maxWBGT": 32.15,
+        "hoursAboveThreshold": 72,
+        "percentHoursAboveThreshold": 4.84,
+        "percentDaysAboveThreshold": 25.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 9,
+        "meanWBGT": 19.93,
+        "maxWBGT": 31.07,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.61
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 10,
+        "meanWBGT": 14.66,
+        "maxWBGT": 28.1,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 11,
+        "meanWBGT": 7.5,
+        "maxWBGT": 22.22,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Arrowhead_KC",
+        "month": 12,
+        "meanWBGT": 1.55,
+        "maxWBGT": 18.19,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 1,
+        "meanWBGT": 11.47,
+        "maxWBGT": 27.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 2,
+        "meanWBGT": 12.47,
+        "maxWBGT": 27.43,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 3,
+        "meanWBGT": 13.19,
+        "maxWBGT": 26.67,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 4,
+        "meanWBGT": 14.82,
+        "maxWBGT": 30.61,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.05,
+        "percentDaysAboveThreshold": 1.08
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 5,
+        "meanWBGT": 17.05,
+        "maxWBGT": 31.21,
+        "hoursAboveThreshold": 5,
+        "percentHoursAboveThreshold": 0.23,
+        "percentDaysAboveThreshold": 4.35
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 6,
+        "meanWBGT": 16.11,
+        "maxWBGT": 27.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 7,
+        "meanWBGT": 16.11,
+        "maxWBGT": 30.23,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 8,
+        "meanWBGT": 16.15,
+        "maxWBGT": 30.07,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 9,
+        "meanWBGT": 16.12,
+        "maxWBGT": 30.22,
+        "hoursAboveThreshold": 2,
+        "percentHoursAboveThreshold": 0.14,
+        "percentDaysAboveThreshold": 3.23
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 10,
+        "meanWBGT": 13.74,
+        "maxWBGT": 26.13,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 11,
+        "meanWBGT": 12.84,
+        "maxWBGT": 25.86,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Azteca_MexicoCity",
+        "month": 12,
+        "meanWBGT": 11.94,
+        "maxWBGT": 27.83,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 1,
+        "meanWBGT": 11.36,
+        "maxWBGT": 26.01,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 2,
+        "meanWBGT": 15.31,
+        "maxWBGT": 28.78,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 3,
+        "meanWBGT": 17.71,
+        "maxWBGT": 29.05,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 4,
+        "meanWBGT": 20.5,
+        "maxWBGT": 31.16,
+        "hoursAboveThreshold": 10,
+        "percentHoursAboveThreshold": 0.46,
+        "percentDaysAboveThreshold": 3.23
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 5,
+        "meanWBGT": 24.04,
+        "maxWBGT": 31.64,
+        "hoursAboveThreshold": 63,
+        "percentHoursAboveThreshold": 2.92,
+        "percentDaysAboveThreshold": 21.74
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 6,
+        "meanWBGT": 24.67,
+        "maxWBGT": 31.45,
+        "hoursAboveThreshold": 29,
+        "percentHoursAboveThreshold": 2.01,
+        "percentDaysAboveThreshold": 12.9
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 7,
+        "meanWBGT": 24.25,
+        "maxWBGT": 30.46,
+        "hoursAboveThreshold": 4,
+        "percentHoursAboveThreshold": 0.27,
+        "percentDaysAboveThreshold": 3.12
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 8,
+        "meanWBGT": 24.41,
+        "maxWBGT": 29.35,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 9,
+        "meanWBGT": 23.32,
+        "maxWBGT": 29.22,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 10,
+        "meanWBGT": 20.7,
+        "maxWBGT": 28.6,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 11,
+        "meanWBGT": 17.98,
+        "maxWBGT": 28.53,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BBVA_Monterrey",
+        "month": 12,
+        "meanWBGT": 15.22,
+        "maxWBGT": 25.87,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 1,
+        "meanWBGT": 2.7,
+        "maxWBGT": 13.54,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 2,
+        "meanWBGT": 3.16,
+        "maxWBGT": 18.02,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 3,
+        "meanWBGT": 5.75,
+        "maxWBGT": 24.59,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 4,
+        "meanWBGT": 9.54,
+        "maxWBGT": 26.13,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 5,
+        "meanWBGT": 12.84,
+        "maxWBGT": 28.15,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 6,
+        "meanWBGT": 15.55,
+        "maxWBGT": 29.11,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 7,
+        "meanWBGT": 19.76,
+        "maxWBGT": 33.79,
+        "hoursAboveThreshold": 38,
+        "percentHoursAboveThreshold": 2.55,
+        "percentDaysAboveThreshold": 20.31
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 8,
+        "meanWBGT": 19.45,
+        "maxWBGT": 33.45,
+        "hoursAboveThreshold": 74,
+        "percentHoursAboveThreshold": 4.97,
+        "percentDaysAboveThreshold": 32.81
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 9,
+        "meanWBGT": 16.73,
+        "maxWBGT": 33.14,
+        "hoursAboveThreshold": 32,
+        "percentHoursAboveThreshold": 2.22,
+        "percentDaysAboveThreshold": 12.9
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 10,
+        "meanWBGT": 9.78,
+        "maxWBGT": 22.78,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 11,
+        "meanWBGT": 5.74,
+        "maxWBGT": 15.8,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BCPlace_Vancouver",
+        "month": 12,
+        "meanWBGT": 4.14,
+        "maxWBGT": 12.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 1,
+        "meanWBGT": -5.23,
+        "maxWBGT": 11.38,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 2,
+        "meanWBGT": -3.66,
+        "maxWBGT": 16.51,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 3,
+        "meanWBGT": 1.52,
+        "maxWBGT": 18.66,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 4,
+        "meanWBGT": 6.23,
+        "maxWBGT": 22.4,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 5,
+        "meanWBGT": 11.98,
+        "maxWBGT": 25.01,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 6,
+        "meanWBGT": 18.37,
+        "maxWBGT": 33.94,
+        "hoursAboveThreshold": 8,
+        "percentHoursAboveThreshold": 0.56,
+        "percentDaysAboveThreshold": 4.84
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 7,
+        "meanWBGT": 21.69,
+        "maxWBGT": 30.83,
+        "hoursAboveThreshold": 3,
+        "percentHoursAboveThreshold": 0.2,
+        "percentDaysAboveThreshold": 3.12
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 8,
+        "meanWBGT": 19.77,
+        "maxWBGT": 30.22,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 9,
+        "meanWBGT": 17.48,
+        "maxWBGT": 25.92,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 10,
+        "meanWBGT": 10.92,
+        "maxWBGT": 24.27,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 11,
+        "meanWBGT": 4.27,
+        "maxWBGT": 19.02,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "BMOField_Toronto",
+        "month": 12,
+        "meanWBGT": -2.51,
+        "maxWBGT": 10.26,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 1,
+        "meanWBGT": -3.13,
+        "maxWBGT": 15.46,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 2,
+        "meanWBGT": -2.03,
+        "maxWBGT": 17.12,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 3,
+        "meanWBGT": 4.48,
+        "maxWBGT": 26.09,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 4,
+        "meanWBGT": 9.58,
+        "maxWBGT": 33.05,
+        "hoursAboveThreshold": 4,
+        "percentHoursAboveThreshold": 0.19,
+        "percentDaysAboveThreshold": 2.15
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 5,
+        "meanWBGT": 15.06,
+        "maxWBGT": 32.6,
+        "hoursAboveThreshold": 16,
+        "percentHoursAboveThreshold": 0.74,
+        "percentDaysAboveThreshold": 6.52
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 6,
+        "meanWBGT": 21.47,
+        "maxWBGT": 38.24,
+        "hoursAboveThreshold": 170,
+        "percentHoursAboveThreshold": 11.81,
+        "percentDaysAboveThreshold": 43.55
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 7,
+        "meanWBGT": 24.41,
+        "maxWBGT": 37.06,
+        "hoursAboveThreshold": 292,
+        "percentHoursAboveThreshold": 19.62,
+        "percentDaysAboveThreshold": 75.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 8,
+        "meanWBGT": 21.75,
+        "maxWBGT": 35.86,
+        "hoursAboveThreshold": 170,
+        "percentHoursAboveThreshold": 11.42,
+        "percentDaysAboveThreshold": 46.88
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 9,
+        "meanWBGT": 18.46,
+        "maxWBGT": 32.14,
+        "hoursAboveThreshold": 19,
+        "percentHoursAboveThreshold": 1.32,
+        "percentDaysAboveThreshold": 12.9
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 10,
+        "meanWBGT": 12.09,
+        "maxWBGT": 31.65,
+        "hoursAboveThreshold": 4,
+        "percentHoursAboveThreshold": 0.27,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 11,
+        "meanWBGT": 5.73,
+        "maxWBGT": 25.23,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Gillette_Boston",
+        "month": 12,
+        "meanWBGT": -0.96,
+        "maxWBGT": 15.11,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 1,
+        "meanWBGT": 18.29,
+        "maxWBGT": 29.35,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 2,
+        "meanWBGT": 18.64,
+        "maxWBGT": 29.17,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 3,
+        "meanWBGT": 21.02,
+        "maxWBGT": 28.21,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 4,
+        "meanWBGT": 21.77,
+        "maxWBGT": 30.24,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.05,
+        "percentDaysAboveThreshold": 1.08
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 5,
+        "meanWBGT": 25.49,
+        "maxWBGT": 36.68,
+        "hoursAboveThreshold": 61,
+        "percentHoursAboveThreshold": 2.83,
+        "percentDaysAboveThreshold": 20.65
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 6,
+        "meanWBGT": 26.14,
+        "maxWBGT": 35.0,
+        "hoursAboveThreshold": 48,
+        "percentHoursAboveThreshold": 3.33,
+        "percentDaysAboveThreshold": 20.97
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 7,
+        "meanWBGT": 27.17,
+        "maxWBGT": 37.84,
+        "hoursAboveThreshold": 219,
+        "percentHoursAboveThreshold": 14.72,
+        "percentDaysAboveThreshold": 71.88
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 8,
+        "meanWBGT": 27.19,
+        "maxWBGT": 37.62,
+        "hoursAboveThreshold": 210,
+        "percentHoursAboveThreshold": 14.11,
+        "percentDaysAboveThreshold": 70.31
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 9,
+        "meanWBGT": 26.57,
+        "maxWBGT": 39.1,
+        "hoursAboveThreshold": 150,
+        "percentHoursAboveThreshold": 10.42,
+        "percentDaysAboveThreshold": 66.13
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 10,
+        "meanWBGT": 24.14,
+        "maxWBGT": 32.83,
+        "hoursAboveThreshold": 15,
+        "percentHoursAboveThreshold": 1.01,
+        "percentDaysAboveThreshold": 6.25
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 11,
+        "meanWBGT": 21.33,
+        "maxWBGT": 30.39,
+        "hoursAboveThreshold": 2,
+        "percentHoursAboveThreshold": 0.14,
+        "percentDaysAboveThreshold": 1.61
+      },
+      {
+        "venue": "HardRock_Miami",
+        "month": 12,
+        "meanWBGT": 19.98,
+        "maxWBGT": 29.31,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 1,
+        "meanWBGT": 10.0,
+        "maxWBGT": 21.75,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 2,
+        "meanWBGT": 11.16,
+        "maxWBGT": 24.75,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 3,
+        "meanWBGT": 12.72,
+        "maxWBGT": 31.81,
+        "hoursAboveThreshold": 4,
+        "percentHoursAboveThreshold": 0.18,
+        "percentDaysAboveThreshold": 1.04
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 4,
+        "meanWBGT": 13.15,
+        "maxWBGT": 25.02,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 5,
+        "meanWBGT": 14.41,
+        "maxWBGT": 26.81,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 6,
+        "meanWBGT": 16.08,
+        "maxWBGT": 28.37,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 7,
+        "meanWBGT": 17.97,
+        "maxWBGT": 31.25,
+        "hoursAboveThreshold": 4,
+        "percentHoursAboveThreshold": 0.27,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 8,
+        "meanWBGT": 18.24,
+        "maxWBGT": 27.62,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 9,
+        "meanWBGT": 18.63,
+        "maxWBGT": 30.46,
+        "hoursAboveThreshold": 1,
+        "percentHoursAboveThreshold": 0.07,
+        "percentDaysAboveThreshold": 1.61
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 10,
+        "meanWBGT": 16.43,
+        "maxWBGT": 29.38,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 11,
+        "meanWBGT": 12.3,
+        "maxWBGT": 27.87,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Levis_SF",
+        "month": 12,
+        "meanWBGT": 10.81,
+        "maxWBGT": 22.12,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 1,
+        "meanWBGT": -1.41,
+        "maxWBGT": 16.52,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 2,
+        "meanWBGT": 0.51,
+        "maxWBGT": 16.31,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 3,
+        "meanWBGT": 7.13,
+        "maxWBGT": 23.21,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 4,
+        "meanWBGT": 11.53,
+        "maxWBGT": 27.98,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 5,
+        "meanWBGT": 16.41,
+        "maxWBGT": 30.54,
+        "hoursAboveThreshold": 8,
+        "percentHoursAboveThreshold": 0.37,
+        "percentDaysAboveThreshold": 2.17
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 6,
+        "meanWBGT": 21.91,
+        "maxWBGT": 34.17,
+        "hoursAboveThreshold": 55,
+        "percentHoursAboveThreshold": 3.82,
+        "percentDaysAboveThreshold": 16.13
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 7,
+        "meanWBGT": 24.9,
+        "maxWBGT": 36.56,
+        "hoursAboveThreshold": 118,
+        "percentHoursAboveThreshold": 7.93,
+        "percentDaysAboveThreshold": 35.94
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 8,
+        "meanWBGT": 21.6,
+        "maxWBGT": 34.52,
+        "hoursAboveThreshold": 39,
+        "percentHoursAboveThreshold": 2.62,
+        "percentDaysAboveThreshold": 17.19
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 9,
+        "meanWBGT": 19.02,
+        "maxWBGT": 27.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 10,
+        "meanWBGT": 12.97,
+        "maxWBGT": 24.96,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 11,
+        "meanWBGT": 7.53,
+        "maxWBGT": 23.36,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "LincolnFin_Philly",
+        "month": 12,
+        "meanWBGT": 0.59,
+        "maxWBGT": 16.81,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 1,
+        "meanWBGT": 3.64,
+        "maxWBGT": 18.03,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 2,
+        "meanWBGT": 4.66,
+        "maxWBGT": 18.86,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 3,
+        "meanWBGT": 7.23,
+        "maxWBGT": 26.73,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 4,
+        "meanWBGT": 10.27,
+        "maxWBGT": 27.16,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 5,
+        "meanWBGT": 13.37,
+        "maxWBGT": 29.43,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 6,
+        "meanWBGT": 16.2,
+        "maxWBGT": 31.41,
+        "hoursAboveThreshold": 9,
+        "percentHoursAboveThreshold": 0.62,
+        "percentDaysAboveThreshold": 6.45
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 7,
+        "meanWBGT": 19.96,
+        "maxWBGT": 32.61,
+        "hoursAboveThreshold": 36,
+        "percentHoursAboveThreshold": 2.42,
+        "percentDaysAboveThreshold": 20.31
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 8,
+        "meanWBGT": 19.45,
+        "maxWBGT": 34.17,
+        "hoursAboveThreshold": 25,
+        "percentHoursAboveThreshold": 1.68,
+        "percentDaysAboveThreshold": 14.06
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 9,
+        "meanWBGT": 17.0,
+        "maxWBGT": 32.84,
+        "hoursAboveThreshold": 11,
+        "percentHoursAboveThreshold": 0.76,
+        "percentDaysAboveThreshold": 8.06
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 10,
+        "meanWBGT": 10.94,
+        "maxWBGT": 25.85,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 11,
+        "meanWBGT": 7.38,
+        "maxWBGT": 19.05,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Lumen_Seattle",
+        "month": 12,
+        "meanWBGT": 5.5,
+        "maxWBGT": 17.54,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 1,
+        "meanWBGT": 5.07,
+        "maxWBGT": 20.88,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 2,
+        "meanWBGT": 10.84,
+        "maxWBGT": 25.58,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 3,
+        "meanWBGT": 15.21,
+        "maxWBGT": 27.33,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 4,
+        "meanWBGT": 18.46,
+        "maxWBGT": 29.81,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 5,
+        "meanWBGT": 21.85,
+        "maxWBGT": 33.44,
+        "hoursAboveThreshold": 29,
+        "percentHoursAboveThreshold": 1.35,
+        "percentDaysAboveThreshold": 9.78
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 6,
+        "meanWBGT": 25.85,
+        "maxWBGT": 37.12,
+        "hoursAboveThreshold": 104,
+        "percentHoursAboveThreshold": 7.22,
+        "percentDaysAboveThreshold": 40.32
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 7,
+        "meanWBGT": 26.0,
+        "maxWBGT": 32.89,
+        "hoursAboveThreshold": 113,
+        "percentHoursAboveThreshold": 7.59,
+        "percentDaysAboveThreshold": 48.44
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 8,
+        "meanWBGT": 26.64,
+        "maxWBGT": 35.44,
+        "hoursAboveThreshold": 243,
+        "percentHoursAboveThreshold": 16.33,
+        "percentDaysAboveThreshold": 71.88
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 9,
+        "meanWBGT": 23.18,
+        "maxWBGT": 32.72,
+        "hoursAboveThreshold": 42,
+        "percentHoursAboveThreshold": 2.92,
+        "percentDaysAboveThreshold": 20.97
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 10,
+        "meanWBGT": 19.66,
+        "maxWBGT": 28.73,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 11,
+        "meanWBGT": 14.51,
+        "maxWBGT": 26.37,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "Mansfield_TX",
+        "month": 12,
+        "meanWBGT": 10.38,
+        "maxWBGT": 24.56,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 1,
+        "meanWBGT": 2.51,
+        "maxWBGT": 19.2,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 2,
+        "meanWBGT": 6.93,
+        "maxWBGT": 19.65,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 3,
+        "meanWBGT": 10.79,
+        "maxWBGT": 21.86,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 4,
+        "meanWBGT": 14.67,
+        "maxWBGT": 23.07,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 5,
+        "meanWBGT": 18.13,
+        "maxWBGT": 25.84,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 6,
+        "meanWBGT": 21.98,
+        "maxWBGT": 27.53,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 7,
+        "meanWBGT": 23.94,
+        "maxWBGT": 27.95,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 8,
+        "meanWBGT": 21.97,
+        "maxWBGT": 27.98,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 9,
+        "meanWBGT": 19.92,
+        "maxWBGT": 26.05,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 10,
+        "meanWBGT": 14.4,
+        "maxWBGT": 22.96,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 11,
+        "meanWBGT": 10.86,
+        "maxWBGT": 21.59,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MercedesBenz_Atlanta",
+        "month": 12,
+        "meanWBGT": 5.53,
+        "maxWBGT": 18.62,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 1,
+        "meanWBGT": -2.04,
+        "maxWBGT": 14.33,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 2,
+        "meanWBGT": -0.54,
+        "maxWBGT": 17.76,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 3,
+        "meanWBGT": 6.3,
+        "maxWBGT": 25.41,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 4,
+        "meanWBGT": 11.27,
+        "maxWBGT": 32.18,
+        "hoursAboveThreshold": 10,
+        "percentHoursAboveThreshold": 0.46,
+        "percentDaysAboveThreshold": 3.23
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 5,
+        "meanWBGT": 16.4,
+        "maxWBGT": 32.73,
+        "hoursAboveThreshold": 21,
+        "percentHoursAboveThreshold": 0.97,
+        "percentDaysAboveThreshold": 9.78
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 6,
+        "meanWBGT": 22.64,
+        "maxWBGT": 39.14,
+        "hoursAboveThreshold": 217,
+        "percentHoursAboveThreshold": 15.07,
+        "percentDaysAboveThreshold": 56.45
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 7,
+        "meanWBGT": 25.83,
+        "maxWBGT": 37.99,
+        "hoursAboveThreshold": 362,
+        "percentHoursAboveThreshold": 24.33,
+        "percentDaysAboveThreshold": 87.5
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 8,
+        "meanWBGT": 22.67,
+        "maxWBGT": 35.97,
+        "hoursAboveThreshold": 194,
+        "percentHoursAboveThreshold": 13.04,
+        "percentDaysAboveThreshold": 51.56
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 9,
+        "meanWBGT": 19.67,
+        "maxWBGT": 32.0,
+        "hoursAboveThreshold": 28,
+        "percentHoursAboveThreshold": 1.94,
+        "percentDaysAboveThreshold": 14.52
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 10,
+        "meanWBGT": 13.48,
+        "maxWBGT": 30.67,
+        "hoursAboveThreshold": 3,
+        "percentHoursAboveThreshold": 0.2,
+        "percentDaysAboveThreshold": 1.56
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 11,
+        "meanWBGT": 7.15,
+        "maxWBGT": 26.06,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "MetLife_NYNJ",
+        "month": 12,
+        "meanWBGT": -0.04,
+        "maxWBGT": 16.39,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 1,
+        "meanWBGT": 8.75,
+        "maxWBGT": 23.43,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 2,
+        "meanWBGT": 13.56,
+        "maxWBGT": 23.09,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 3,
+        "meanWBGT": 16.89,
+        "maxWBGT": 24.42,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 4,
+        "meanWBGT": 19.96,
+        "maxWBGT": 26.58,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 5,
+        "meanWBGT": 22.87,
+        "maxWBGT": 29.65,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 6,
+        "meanWBGT": 25.62,
+        "maxWBGT": 29.31,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 7,
+        "meanWBGT": 25.73,
+        "maxWBGT": 28.68,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 8,
+        "meanWBGT": 26.14,
+        "maxWBGT": 29.5,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 9,
+        "meanWBGT": 23.7,
+        "maxWBGT": 28.72,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 10,
+        "meanWBGT": 20.71,
+        "maxWBGT": 26.9,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 11,
+        "meanWBGT": 17.15,
+        "maxWBGT": 25.92,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "NRG_Houston",
+        "month": 12,
+        "meanWBGT": 13.51,
+        "maxWBGT": 22.91,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 1,
+        "meanWBGT": 10.62,
+        "maxWBGT": 25.82,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 2,
+        "meanWBGT": 12.39,
+        "maxWBGT": 27.63,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 3,
+        "meanWBGT": 13.69,
+        "maxWBGT": 29.21,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 4,
+        "meanWBGT": 14.21,
+        "maxWBGT": 28.68,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 5,
+        "meanWBGT": 16.19,
+        "maxWBGT": 28.39,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 6,
+        "meanWBGT": 18.62,
+        "maxWBGT": 27.08,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 7,
+        "meanWBGT": 20.19,
+        "maxWBGT": 29.27,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 8,
+        "meanWBGT": 21.1,
+        "maxWBGT": 28.51,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 9,
+        "meanWBGT": 20.45,
+        "maxWBGT": 33.87,
+        "hoursAboveThreshold": 9,
+        "percentHoursAboveThreshold": 0.62,
+        "percentDaysAboveThreshold": 3.23
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 10,
+        "meanWBGT": 17.43,
+        "maxWBGT": 28.29,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 11,
+        "meanWBGT": 13.09,
+        "maxWBGT": 26.67,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      },
+      {
+        "venue": "SoFi_LA",
+        "month": 12,
+        "meanWBGT": 12.06,
+        "maxWBGT": 26.18,
+        "hoursAboveThreshold": 0,
+        "percentHoursAboveThreshold": 0.0,
+        "percentDaysAboveThreshold": 0.0
+      }
+    ]
+  }
+}

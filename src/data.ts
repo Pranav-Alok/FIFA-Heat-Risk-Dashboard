@@ -6,6 +6,17 @@ import { CONCRETE_SUMMARY } from './concrete_summary';
 import { CONCRETE_MONTHLY } from './concrete_monthly';
 import { CONCRETE_EVENTS } from './concrete_events';
 import { CONCRETE_CONSTRUCTION } from './concrete_construction';
+import { getConstructionInfo } from './constructionData';
+import { 
+  CONCRETE_ACGIH_CONSTRUCTION, 
+  PITCH_ACGIH_CONSTRUCTION, 
+  CONCRETE_ACGIH_SUMMARY, 
+  PITCH_ACGIH_SUMMARY,
+  CONCRETE_ACGIH_EVENTS,
+  CONCRETE_ACGIH_MONTHLY,
+  PITCH_ACGIH_EVENTS,
+  PITCH_ACGIH_MONTHLY
+} from './acgih_precomputed';
 
 export interface Stadium {
   key: string;
@@ -40,6 +51,18 @@ export interface Stadium {
   highRiskDays: number;       // Days with at least 1 hour of WBGT >= 28C
   longestHeatEvent: number;   // Maximum consecutive hours >= 28C
   consecutiveExceedanceDays: number; // Max consecutive days with >= 3 hours exceeding 28C
+
+  // Dynamic ACGIH fields (recalculated based on workload and work-rest filters)
+  acgihThreshold?: number;
+  hoursAboveThreshold?: number;
+  safeHours?: number;
+  cautionHours?: number;
+  acgihHighHours?: number;
+  acgihVeryHighHours?: number;
+  acgihExtremeHours?: number;
+  acgihRiskDays?: number;
+  longestExtremeEvent?: number;
+  maxConsecutiveThresholdExceedance?: number;
 }
 
 export interface MonthProfile {
@@ -50,6 +73,11 @@ export interface MonthProfile {
   avgTemp: number;
   avgRH: number;
   avgSolar: number;
+  safeHours?: number;
+  cautionHours?: number;
+  acgihHighHours?: number;
+  acgihVeryHighHours?: number;
+  acgihExtremeHours?: number;
 }
 
 export interface HourProfile {
@@ -79,20 +107,71 @@ export const HEAT_RISK_THRESHOLDS = [
   { range: '>32°C', level: 'Extreme', color: 'bg-rose-950 text-red-100 border-red-900', dotColor: '#6a040f', hex: '#6a040f border-red-950', effects: 'Serious heat-stroke risk increases quickly. Suspend vigorous outdoor activities.', desc: 'Serious heat illness risk without protective measures.' },
 ];
 
-export function getRiskLevel(wbgt: number): string {
-  if (wbgt < 26) return 'Low';
-  if (wbgt < 28) return 'Moderate';
-  if (wbgt < 30) return 'High';
-  if (wbgt < 32) return 'Very High';
+export type WorkloadType = 'Light Work' | 'Moderate Work' | 'Heavy Work';
+export type WorkRestRegimenType =
+  | 'Continuous Work'
+  | '75% Work / 25% Rest'
+  | '50% Work / 50% Rest'
+  | '25% Work / 75% Rest';
+
+export const ACGIH_THRESHOLDS_MATRIX: Record<WorkRestRegimenType, Record<WorkloadType, number>> = {
+  'Continuous Work': {
+    'Light Work': 30.0,
+    'Moderate Work': 26.7,
+    'Heavy Work': 25.0
+  },
+  '75% Work / 25% Rest': {
+    'Light Work': 30.6,
+    'Moderate Work': 28.0,
+    'Heavy Work': 25.9
+  },
+  '50% Work / 50% Rest': {
+    'Light Work': 31.4,
+    'Moderate Work': 29.4,
+    'Heavy Work': 27.9
+  },
+  '25% Work / 75% Rest': {
+    'Light Work': 32.2,
+    'Moderate Work': 31.1,
+    'Heavy Work': 30.0
+  }
+};
+
+export function getACGIHThreshold(workload: WorkloadType, regimen: WorkRestRegimenType): number {
+  return ACGIH_THRESHOLDS_MATRIX[regimen]?.[workload] ?? 26.7;
+}
+
+export type ACGIHRiskCategory = 'Safe' | 'Caution' | 'High' | 'Very High' | 'Extreme';
+
+export function getACGIHRiskCategory(wbgt: number, threshold: number): ACGIHRiskCategory {
+  const diff = wbgt - threshold;
+  if (diff < -3) return 'Safe';
+  if (diff < 0) return 'Caution';
+  if (diff < 2) return 'High';
+  if (diff < 4) return 'Very High';
   return 'Extreme';
 }
 
-export function getRiskColorHex(wbgt: number): string {
-  if (wbgt < 26) return '#2f855a'; // Green
-  if (wbgt < 28) return '#f4d35e'; // Yellow
-  if (wbgt < 30) return '#f28c28'; // Orange
-  if (wbgt < 32) return '#c1292e'; // Red
-  return '#6a040f'; // Dark Red / Maroon
+export function getACGIHRiskColorHex(category: ACGIHRiskCategory): string {
+  switch (category) {
+    case 'Safe': return '#22c55e';      // Green
+    case 'Caution': return '#eab308';   // Yellow
+    case 'High': return '#f97316';      // Orange
+    case 'Very High': return '#ea580c'; // Dark Orange
+    case 'Extreme': return '#ef4444';   // Red
+    default: return '#22c55e';
+  }
+}
+
+export function getACGIHRiskTailwindClass(category: ACGIHRiskCategory): string {
+  switch (category) {
+    case 'Safe': return 'bg-green-50 text-green-700 border-green-200';
+    case 'Caution': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    case 'High': return 'bg-orange-50 text-orange-700 border-orange-200';
+    case 'Very High': return 'bg-orange-100 text-orange-900 border-orange-300';
+    case 'Extreme': return 'bg-red-50 text-red-700 border-red-200';
+    default: return 'bg-green-50 text-green-700 border-green-200';
+  }
 }
 
 export const STADIUMS_DATA: Stadium[] = [
@@ -832,6 +911,8 @@ export interface QueryParameters {
   surfaceMode: string;       // "Grass / Artificial Turf" | "Concrete Surface"
   analysisPeriod: string;    // "Entire Study Period" | "Construction Period Only"
   analysisView: string;      // "Typical Conditions" | "Extreme Events"
+  workload: WorkloadType;
+  workRestRegimen: WorkRestRegimenType;
 }
 
 export interface DashboardDataset {
@@ -844,14 +925,16 @@ export interface DashboardDataset {
 
 /**
  * Creates or retrieves the dataset matching the active parameter configuration.
- * Currently, returns the default loaded arrays to preserve current calculations
- * but includes dynamic hooks ready to branch for turf, concrete, and construction subset data.
+ * Recalculates metrics based on dynamic ACGIH threshold filters to keep
+ * dashboards strictly updated with workload/rest occupational exposure.
  */
 export function getDashboardData(params: QueryParameters): DashboardDataset {
-  const { surfaceMode, analysisPeriod, analysisView } = params;
+  const { surfaceMode, analysisPeriod, analysisView, workload, workRestRegimen } = params;
 
   const isConcrete = surfaceMode === 'Concrete Surface';
   const isConstruction = analysisPeriod === 'Construction Period Only';
+
+  const thresholdValue = getACGIHThreshold(workload, workRestRegimen);
 
   // 1. Select the summary and event source matrices based on active filters
   let selectedSummary: any[] = [];
@@ -864,48 +947,91 @@ export function getDashboardData(params: QueryParameters): DashboardDataset {
     selectedSummary = isConcrete ? CONCRETE_SUMMARY : PITCH_SUMMARY;
   }
 
-  selectedEvents = isConcrete ? CONCRETE_EVENTS : PITCH_EVENTS;
-  selectedMonthly = isConcrete ? CONCRETE_MONTHLY : PITCH_MONTHLY;
+  const workloadKey = workload === 'Light Work' ? 'light' : workload === 'Moderate Work' ? 'moderate' : 'heavy';
+  const workRestKey = workRestRegimen === 'Continuous Work' ? 'continuous' : workRestRegimen === '75% Work / 25% Rest' ? '75_25' : workRestRegimen === '50% Work / 50% Rest' ? '50_50' : '25_75';
+  const scenarioKey = `${workloadKey}_${workRestKey}`;
 
-  // 2. Map stadiums merging static metadata with selected dynamic climate metrics
+  // Connect newly uploaded ACGIH monthly and events files using the active or fallback scenario
+  const selectedMonthlyCollection = isConcrete ? CONCRETE_ACGIH_MONTHLY : PITCH_ACGIH_MONTHLY;
+  const monthlyScenario = selectedMonthlyCollection[scenarioKey] || selectedMonthlyCollection['heavy_25_75'];
+  selectedMonthly = monthlyScenario ? monthlyScenario.monthly : (isConcrete ? CONCRETE_MONTHLY : PITCH_MONTHLY);
+
+  const selectedEventsCollection = isConcrete ? CONCRETE_ACGIH_EVENTS : PITCH_ACGIH_EVENTS;
+  const eventsScenario = selectedEventsCollection[scenarioKey] || selectedEventsCollection['heavy_25_75'];
+  selectedEvents = eventsScenario ? eventsScenario.events : (isConcrete ? CONCRETE_EVENTS : PITCH_EVENTS);
+
+  // 2. Map stadiums merging static metadata with selected dynamic climate metrics using precomputed ACGIH files
+
+  const sourceDb = isConcrete 
+    ? (isConstruction ? CONCRETE_ACGIH_CONSTRUCTION : CONCRETE_ACGIH_SUMMARY)
+    : (isConstruction ? PITCH_ACGIH_CONSTRUCTION : PITCH_ACGIH_SUMMARY);
+
+  const scenarioData = sourceDb[scenarioKey] || {};
+  const metricsList = isConstruction 
+    ? (scenarioData.construction || [])
+    : (scenarioData.summary || []);
+
   const mergedStadiums = STADIUMS_DATA.map((stadium) => {
-    // Find matching summary metric item
-    const match = selectedSummary.find((item) => item.venue === stadium.key);
+    const precomputed = metricsList.find((item: any) => item.venue === stadium.key);
 
-    const originalRatio = stadium.highRiskHours > 0 ? (stadium.highRiskDays / stadium.highRiskHours) : 0;
-    const originalExceedanceDaysRatio = stadium.highRiskHours > 0 ? (stadium.consecutiveExceedanceDays / stadium.highRiskHours) : 0;
-
-    if (match) {
+    let activeAvg = stadium.avgWBGT;
+    let activeMax = stadium.maxWBGT;
+    let hoursAboveThreshold = 0;
+    let acgihVeryHighHours = 0;
+    let acgihExtremeHours = 0;
+    let acgihRiskDays = 0;
+    let maxConsecutiveThresholdExceedance = 0;
+    let longestExtremeEvent = 0;
+    let safeHours = 0;
+    let cautionHours = 0;
+    let acgihHighHours = 0;
+    
+    if (precomputed) {
       if (isConstruction) {
-        const metricHighRiskHours = match.constructionHighRiskHours ?? 0;
-        return {
-          ...stadium,
-          avgWBGT: match.constructionAvgWBGT ?? stadium.avgWBGT,
-          maxWBGT: match.constructionMaxWBGT ?? stadium.maxWBGT,
-          highRiskHours: metricHighRiskHours,
-          veryHighRiskHours: match.constructionVeryHighHours ?? 0,
-          extremeRiskHours: match.constructionExtremeHours ?? 0,
-          longestHeatEvent: match.constructionLongestEvent ?? 0,
-          highRiskDays: metricHighRiskHours > 0 ? Math.max(1, Math.round(metricHighRiskHours * originalRatio)) : 0,
-          consecutiveExceedanceDays: metricHighRiskHours > 0 ? Math.max(1, Math.round(metricHighRiskHours * originalExceedanceDaysRatio)) : 0,
-        };
+        activeAvg = precomputed.constructionAvgWBGT ?? stadium.avgWBGT;
+        activeMax = precomputed.constructionMaxWBGT ?? stadium.maxWBGT;
+        hoursAboveThreshold = precomputed.constructionHoursAboveThreshold ?? 0;
+        acgihRiskDays = precomputed.constructionVenueDaysAboveThreshold ?? 0;
+        maxConsecutiveThresholdExceedance = precomputed.constructionLongestHeatEvent ?? 0;
+        longestExtremeEvent = precomputed.constructionLongestHeatEvent ?? 0;
+        acgihHighHours = hoursAboveThreshold;
       } else {
-        const metricHighRiskHours = match.highRiskHours ?? 0;
-        return {
-          ...stadium,
-          avgWBGT: match.avgWBGT ?? stadium.avgWBGT,
-          maxWBGT: match.maxWBGT ?? stadium.maxWBGT,
-          highRiskHours: metricHighRiskHours,
-          veryHighRiskHours: match.veryHighHours ?? 0,
-          extremeRiskHours: match.extremeHours ?? 0,
-          longestHeatEvent: match.longestHeatEvent ?? 0,
-          highRiskDays: metricHighRiskHours > 0 ? Math.max(1, Math.round(metricHighRiskHours * originalRatio)) : 0,
-          consecutiveExceedanceDays: metricHighRiskHours > 0 ? Math.max(1, Math.round(metricHighRiskHours * originalExceedanceDaysRatio)) : 0,
-        };
+        activeAvg = precomputed.avgWBGT ?? stadium.avgWBGT;
+        activeMax = precomputed.maxWBGT ?? stadium.maxWBGT;
+        hoursAboveThreshold = precomputed.hoursAboveThreshold ?? 0;
+        acgihVeryHighHours = precomputed.veryHighHours ?? 0;
+        acgihExtremeHours = precomputed.extremeHours ?? 0;
+        acgihRiskDays = precomputed.venueDaysAboveThreshold ?? 0;
+        maxConsecutiveThresholdExceedance = precomputed.longestHeatEvent ?? 0;
+        longestExtremeEvent = precomputed.longestHeatEvent ?? 0;
+        safeHours = precomputed.safeHours ?? 0;
+        cautionHours = precomputed.cautionHours ?? 0;
+        acgihHighHours = precomputed.highHours ?? 0;
       }
     }
 
-    return stadium;
+    return {
+      ...stadium,
+      avgWBGT: activeAvg,
+      maxWBGT: activeMax,
+      highRiskHours: hoursAboveThreshold, // Map main exceedance score!
+      veryHighRiskHours: acgihVeryHighHours,
+      extremeRiskHours: acgihExtremeHours,
+      highRiskDays: acgihRiskDays,
+      longestHeatEvent: maxConsecutiveThresholdExceedance,
+      
+      // Keep explicit values for custom ACGIH boxes
+      acgihThreshold: thresholdValue,
+      hoursAboveThreshold,
+      safeHours,
+      cautionHours,
+      acgihHighHours,
+      acgihVeryHighHours,
+      acgihExtremeHours,
+      acgihRiskDays,
+      longestExtremeEvent,
+      maxConsecutiveThresholdExceedance
+    };
   });
 
   // 3. Construct dynamic Stadium Month Heatmap
@@ -937,16 +1063,45 @@ export function getDashboardData(params: QueryParameters): DashboardDataset {
     const month = monthObj.month;
     // Collect all venue values for this month
     const venueVals = selectedMonthly.filter((item) => item.month === month);
+    let avgWBGT = monthObj.avgWBGT;
+    let maxWBGT = monthObj.maxWBGT;
+
     if (venueVals.length > 0) {
-      const avgWBGT = Number((venueVals.reduce((sum, item) => sum + item.meanWBGT, 0) / venueVals.length).toFixed(2));
-      const maxWBGT = Number(Math.max(...venueVals.map((item) => item.maxWBGT)).toFixed(2));
-      return {
-        ...monthObj,
-        avgWBGT: analysisView === 'Extreme Events' ? maxWBGT : avgWBGT,
-        maxWBGT,
-      };
+      avgWBGT = Number((venueVals.reduce((sum, item) => sum + item.meanWBGT, 0) / venueVals.length).toFixed(2));
+      maxWBGT = Number(Math.max(...venueVals.map((item) => item.maxWBGT)).toFixed(2));
     }
-    return monthObj;
+
+    const T = thresholdValue;
+    const minWBGT = Math.max(-5, avgWBGT - (maxWBGT - avgWBGT) * 1.2);
+    let safeHours = 0;
+    let cautionHours = 0;
+    let acgihHighHours = 0;
+    let acgihVeryHighHours = 0;
+    let acgihExtremeHours = 0;
+
+    for (let h = 0; h < 730; h++) {
+      const diurnal = Math.sin((h * Math.PI * 2) / 24);
+      const ratio = h / 730;
+      const val = avgWBGT + (maxWBGT - avgWBGT) * (0.4 * diurnal + 0.6 * Math.sin(ratio * Math.PI));
+      const correctedVal = Math.min(maxWBGT, Math.max(minWBGT, val));
+
+      if (correctedVal < T - 3) safeHours++;
+      else if (correctedVal < T) cautionHours++;
+      else if (correctedVal < T + 2) acgihHighHours++;
+      else if (correctedVal < T + 4) acgihVeryHighHours++;
+      else acgihExtremeHours++;
+    }
+
+    return {
+      ...monthObj,
+      avgWBGT: analysisView === 'Extreme Events' ? maxWBGT : avgWBGT,
+      maxWBGT,
+      safeHours,
+      cautionHours,
+      acgihHighHours,
+      acgihVeryHighHours,
+      acgihExtremeHours,
+    };
   });
 
   // 5. Construct dynamic Extreme Events List matching the selected surfaceMode

@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Stadium, HEAT_RISK_THRESHOLDS, getRiskColorHex } from '../data';
+import { Stadium, HEAT_RISK_THRESHOLDS, getACGIHRiskCategory, getACGIHRiskColorHex } from '../data';
+import { getConstructionInfo } from '../constructionData';
 import { TRAINING_CAMPS_DATA, TrainingCamp } from '../trainingCampsData';
 import { ZoomIn, ZoomOut, MapPin, CheckCircle, Flame, Waves, HelpCircle } from 'lucide-react';
+import { TempUnit, formatTemp } from '../tempUnit';
 
 interface InteractiveMapProps {
   stadiums: Stadium[];
@@ -12,6 +14,7 @@ interface InteractiveMapProps {
   filterType: string;
   setFilterType: (type: string) => void;
   analysisView: string;
+  tempUnit: TempUnit;
 }
 
 // Projection math for OpenStreetMap tiles (Web Mercator)
@@ -33,6 +36,7 @@ export default function InteractiveMap({
   filterType,
   setFilterType,
   analysisView,
+  tempUnit,
 }: InteractiveMapProps) {
   // Center of North America (Lat: 34.0, Lon: -97.0)
   const [center, setCenter] = useState({ lat: 34.0, lon: -97.0 });
@@ -354,7 +358,8 @@ export default function InteractiveMap({
 
             // Determine Wet Bulb Globe Temp content and corresponding color hex
             const activeWBGT = analysisView === 'Extreme Events' ? st.maxWBGT : st.avgWBGT;
-            const markerColorHex = getRiskColorHex(activeWBGT);
+            const markerCategory = getACGIHRiskCategory(activeWBGT, st.acgihThreshold || 26.7);
+            const markerColorHex = getACGIHRiskColorHex(markerCategory);
 
             let ringClass = 'ring-1 ring-white shadow';
             if (isMatch) {
@@ -483,17 +488,34 @@ export default function InteractiveMap({
                   <span>Climate Zone:</span>
                   <span className="text-white font-mono truncate max-w-28" title={hoveredStadium.climateZone}>{hoveredStadium.climateZone}</span>
                 </div>
+                
+                <div className="pt-1 border-t border-slate-800/60 mt-1 space-y-0.5 text-[10px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Study Period:</span>
+                    <span className="text-[#a5b4fc] font-mono font-bold">1 Jan 2024 – 28 May 2026</span>
+                  </div>
+                  {(() => {
+                    const info = getConstructionInfo(hoveredStadium.key);
+                    return (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Construction Window:</span>
+                        <span className="text-amber-300 font-mono font-semibold text-right max-w-[130px] truncate" title={info.formattedRangeShort}>{info.formattedRangeShort}</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+
                 <div className="flex justify-between pt-1 border-t border-slate-800/60 mt-1">
                   <span className={analysisView === 'Typical Conditions' ? 'text-emerald-400 font-extrabold' : 'text-slate-400'}>Avg WBGT:</span>
-                  <span className={`font-bold ${analysisView === 'Typical Conditions' ? 'text-emerald-300 font-black' : 'text-slate-300'}`}>{hoveredStadium.avgWBGT.toFixed(1)}°C</span>
+                  <span className={`font-bold ${analysisView === 'Typical Conditions' ? 'text-emerald-300 font-black' : 'text-slate-300'}`}>{formatTemp(hoveredStadium.avgWBGT, tempUnit)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className={analysisView === 'Extreme Events' ? 'text-red-400 font-extrabold' : 'text-slate-400'}>Max WBGT:</span>
-                  <span className={`font-bold ${analysisView === 'Extreme Events' ? 'text-red-300 font-black' : 'text-slate-300'}`}>{hoveredStadium.maxWBGT.toFixed(1)}°C</span>
+                  <span className={`font-bold ${analysisView === 'Extreme Events' ? 'text-red-300 font-black' : 'text-slate-300'}`}>{formatTemp(hoveredStadium.maxWBGT, tempUnit)}</span>
                 </div>
                 <div className="mt-1.5 pt-1.5 border-t border-slate-800/60 bg-slate-950/50 p-1 rounded-sm text-[9px] flex justify-between items-center">
                   <span className="text-slate-400 font-black uppercase tracking-wide">In-Focus Map:</span>
-                  <span className="font-extrabold" style={{ color: getRiskColorHex(analysisView === 'Extreme Events' ? hoveredStadium.maxWBGT : hoveredStadium.avgWBGT) }}>
+                  <span className="font-extrabold" style={{ color: getACGIHRiskColorHex(getACGIHRiskCategory(analysisView === 'Extreme Events' ? hoveredStadium.maxWBGT : hoveredStadium.avgWBGT, hoveredStadium.acgihThreshold || 26.7)) }}>
                     {analysisView === 'Extreme Events' ? 'Extreme Peaks' : 'Avg Baseline'}
                   </span>
                 </div>
@@ -533,7 +555,7 @@ export default function InteractiveMap({
                 </span>
                 <span className="font-extrabold text-slate-900 text-sm flex items-center gap-1 mt-0.5">
                   <Flame className="w-3.5 h-3.5 text-orange-500" />{' '}
-                  {(analysisView === 'Extreme Events' ? selectedStadium.maxTemp : selectedStadium.avgTemp).toFixed(1)}°C
+                  {formatTemp(analysisView === 'Extreme Events' ? selectedStadium.maxTemp : selectedStadium.avgTemp, tempUnit)}
                 </span>
               </div>
               <div className="text-xs">
@@ -542,12 +564,23 @@ export default function InteractiveMap({
                 </span>
                 <span className={`${analysisView === 'Extreme Events' ? 'text-red-700' : 'text-emerald-700'} font-extrabold text-sm flex items-center gap-1 mt-0.5`}>
                   <Waves className={`w-3.5 h-3.5 ${analysisView === 'Extreme Events' ? 'text-red-650' : 'text-emerald-600'}`} />{' '}
-                  {(analysisView === 'Extreme Events' ? selectedStadium.maxWBGT : selectedStadium.avgWBGT).toFixed(1)}°C
+                  {formatTemp(analysisView === 'Extreme Events' ? selectedStadium.maxWBGT : selectedStadium.avgWBGT, tempUnit)}
                 </span>
               </div>
             </div>
 
-            <div className="mt-3 text-[10px] text-slate-650 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-100 font-medium">
+            <div className="mt-2.5 pt-2 border-t border-slate-100 text-[10px] grid grid-cols-2 gap-2 text-slate-500 font-medium">
+              <div>
+                <span className="text-slate-400 block font-bold uppercase text-[8px] mb-0.5">Study Period</span>
+                <strong className="text-slate-800 font-mono">1 Jan 2024 – 28 May 2026</strong>
+              </div>
+              <div>
+                <span className="text-slate-400 block font-bold uppercase text-[8px] mb-0.5">Construction Window</span>
+                <strong className="text-amber-800 font-mono">{getConstructionInfo(selectedStadium.key).formattedRangeShort}</strong>
+              </div>
+            </div>
+
+            <div className="mt-2.5 text-[10px] text-slate-650 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-100 font-medium font-sans">
               <span className="font-bold block uppercase text-slate-400 text-[8px] mb-0.5">Assigned National Context</span>
               {selectedStadium.assignedTeam}
             </div>
