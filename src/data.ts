@@ -97,6 +97,7 @@ export interface ExtremeEvent {
   peakRH: number;
   riskCategory: 'Very High' | 'Extreme';
   type: 'Heatwave' | 'Compound Hot-Humid' | 'Extreme Solar Burden';
+  stadiumKey?: string;
 }
 
 export const HEAT_RISK_THRESHOLDS = [
@@ -1127,7 +1128,8 @@ export function getDashboardData(params: QueryParameters): DashboardDataset {
       peakWBGT: evt.peakWBGT,
       peakRH,
       riskCategory,
-      type
+      type,
+      stadiumKey: stadium.key
     };
   });
 

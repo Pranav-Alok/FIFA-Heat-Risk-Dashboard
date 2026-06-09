@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { jsPDF } from 'jspdf';
 import { TempUnit, formatTemp, formatTempNumber } from './tempUnit';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -19,6 +20,7 @@ import {
   getACGIHRiskTailwindClass,
 } from './data';
 import InteractiveMap from './components/InteractiveMap';
+import MiniHotspotMap from './components/MiniHotspotMap';
 import {
   getConstructionInfo,
   getTimelinePosition,
@@ -45,6 +47,8 @@ import {
   FileSpreadsheet,
   Search,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Info,
   ExternalLink,
   MapPin,
@@ -189,6 +193,24 @@ export default function App() {
   const [workload, setWorkload] = useState<WorkloadType>('Moderate Work');
   const [workRestRegimen, setWorkRestRegimen] = useState<WorkRestRegimenType>('Continuous Work');
 
+  // Sticky panel collapse/expand state & auto-collapse scroll feedback
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState<boolean>(false);
+  const lastScrollY = useRef<number>(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 300 && lastScrollY.current <= 300) {
+        setIsPanelCollapsed(true);
+      } else if (currentScrollY <= 100 && lastScrollY.current > 100) {
+        setIsPanelCollapsed(false);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const activeThreshold = getACGIHThreshold(workload, workRestRegimen);
 
   // Central data-provider query interface
@@ -330,10 +352,65 @@ export default function App() {
   };
 
   // -------------------------------------------------------------
-  // FILE DOWNLOAD BUILDERS (Pragmatic fully-realized implementation)
+  // SOLID PDF & CSV EXPORT INFRASTRUCTURE
   // -------------------------------------------------------------
-  const triggerDownload = (fileName: string, content: string) => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const addPdfHeader = (doc: jsPDF, title: string) => {
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59); // Slate-800
+    doc.text('EQUIDEM HUMAN RIGHTS CLIMATE OBSERVATORY', 14, 15);
+    doc.setFont('Helvetica', 'normal');
+    doc.text('FIFA WORLD CUP 2026 RESEARCH & SAFETY INITIATIVE', 14, 20);
+    
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(203, 213, 225); // Slate-300
+    doc.line(14, 23, 196, 23);
+    
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text(title, 14, 32);
+    
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text(`Generated: ${new Date().toUTCString()} | Standard: ACGIH TLVs & Liljegren WBGT`, 14, 37);
+  };
+
+  const drawSectionHeader = (doc: jsPDF, title: string, y: number): number => {
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42); // Slate-900
+    doc.text(title, 14, y);
+    
+    doc.setLineWidth(0.3);
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.line(14, y + 2, 196, y + 2);
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(51, 65, 85); // Slate-700
+    return y + 8;
+  };
+
+  const printWrappedText = (doc: jsPDF, text: string, x: number, startY: number, maxWidth: number, lineHeight: number = 5.5): number => {
+    const lines = doc.splitTextToSize(text, maxWidth);
+    let y = startY;
+    lines.forEach((line: string) => {
+      if (y > 275) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, x, y);
+      y += lineHeight;
+    });
+    return y;
+  };
+
+  const triggerCsvDownload = (fileName: string, csvContent: string) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -344,199 +421,314 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
-  const downloadTechnicalReport = () => {
-    const reportText = `EQUIDEM RESEARCH FOUNDATION
-===================================
-FIFA 2026 HEAT RISK OBSERVATORY: TECHNICAL COMMISSION REPORT
-Generated: June 2026 (Historical Baseline Analysis)
+  const downloadCurrentAnalysisPDF = () => {
+    const doc = new jsPDF();
+    addPdfHeader(doc, "DYNAMIC CURRENT ANALYSIS SNAPSHOT REPORT");
+    
+    let y = 46;
+    
+    // Section 1: ACTIVE OBSERVATORY PARAMETERS
+    y = drawSectionHeader(doc, "1. DASHBOARD OBSERVATION SETTINGS", y);
+    
+    const parameters = [
+      ["Active Location Focus", activeSelectedStadium ? `${activeSelectedStadium.stadiumName} (${activeSelectedStadium.name}, ${activeSelectedStadium.country})` : "All Host Venues (Aggregate Overview)"],
+      ["Surface Environment", surfaceMode],
+      ["Analysis Period", analysisPeriod],
+      ["Analysis Scenario View", analysisView],
+      ["Worker Physical Exertion Grade", workload],
+      ["Work-Rest Duty Ratio Regimen", workRestRegimen],
+      ["Active Physiological Threshold", `${formatTemp(activeThreshold, tempUnit)} WBGT`],
+      ["Temperature Unit Profile", tempUnit === 'C' ? "Celsius (°C)" : "Fahrenheit (°F)"]
+    ];
+    
+    doc.setFont('Helvetica', 'normal');
+    parameters.forEach(([label, val]) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(`${label}:`, 18, y);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(val, 80, y);
+      y += 5.5;
+    });
+    
+    y += 4;
+    
+    // Section 2: COMPREHENSIVE CLIMATOLOGICAL RECONSTRUCTION (SUMMARY DATA)
+    y = drawSectionHeader(doc, "2. ACTIVE CLIMATE OBSERVATIONS & KPI INDICATORS", y);
+    
+    const kpis = [
+      ["Highest Exposure Risk Focal Point", `${summaryKpis.highestRiskVenue} (${summaryKpis.highestRiskSubText})`],
+      ["Hottest Training Camp Base", `${summaryKpis.hottestCampName} (${summaryKpis.hottestCampSubText})`],
+      [summaryKpis.card3Label || "Total Heat Stress Burden", `${summaryKpis.card3Value} (${summaryKpis.card3SubText || "N/A"})`],
+      [summaryKpis.card4Label || "Days Exceeding Bounds", `${summaryKpis.card4Value} (${summaryKpis.card4SubText || "N/A"})`],
+      [summaryKpis.card5Label || "Longest Heat Wave Spell", `${summaryKpis.card5Value} (${summaryKpis.card5SubText || "N/A"})`],
+      ["Peak Hourly Window", summaryKpis.card6Value || "N/A"]
+    ];
+    
+    kpis.forEach(([label, val]) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(`${label}:`, 18, y);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(val, 92, y);
+      y += 5.5;
+    });
+    
+    y += 6;
+    
+    // Section 3: KEY ENVIRONMENTAL RISKS SUMMARY (CONTEXT)
+    y = drawSectionHeader(doc, "3. POLICY PROTECTIONS & RECOMMENDATIONS SUMMARY", y);
+    
+    const adviceText = `This observatory models physiological heat hazards using highly accurate historical climatology cycles (reconstructed via the Liljegren Wet Bulb Globe Temperature model using ERA5 atmospheric reanalysis and NASA POWER solar data). 
 
-EXECUTIVE SUMMARY
------------------
-Using climatological simulations spanning 2023-2026, this observatory analyzes the extreme
-environmental heat stress burdens facing operations, construction sites, match logistics, and 
-training centers across the 17 FIFA World Cup 2026 host venues. 
-
-By applying standard Wet Bulb Globe Temperature (WBGT) thresholds, our observations identify
-concerning clusters of extreme heat exposure that threaten the health and safety of athletes, 
-staff, and municipal preparation forces.
-
-KEY HOTSPOT FINDINGS
---------------------
-1. Hard Rock Stadium (Miami) registers the highest overall heat burden with 2,840 accumulated 
-   hours of exposure exceeding the critical high-risk safety threshold (>= 28°C WBGT).
-2. Texas Health Mansfield Stadium (Mansfield, TX), constructed specifically as the Base Camp training
-   site, experiences up to 1,980 individual hours of extreme outdoor heat stress.
-3. Compound hot-humid events are prevalent in the Gulf of Mexico regions (Houston, Miami, Monterrey) 
-   where high air temperatures align with high water vapor loads to make traditional bodily heat dissipation 
-   ineffective.
-
-PROACTIVE POLICY RECOMMENDATIONS
--------------------------------
-- Establish mandatory cooling pauses (Wet Bulb temperature monitoring in real-time).
-- Mandate active shading of spectator queues, security pathways, and open staging grounds.
-- Standardize high-performance hydration access coupled with physiological monitoring.
-
-EQUIDEM Climate Observatory Research Group.`;
-    triggerDownload("EQUIDEM_FIFA_2026_Heat_Technical_Report.txt", reportText);
+Under the active occupational safety parameters (ACGIH threshold of ${formatTemp(activeThreshold, tempUnit)} WBGT), several host venues exhibit sustained periods of intense heat strain. Worksite, operations, tournament coordination, and municipal building operations should implement structured work-rest cycles with immediate shade shelter accessibility, dynamic warning systems, and mandatory hydration schedules.`;
+    
+    y = printWrappedText(doc, adviceText, 14, y, 180, 5);
+    
+    // Save document
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    doc.save(`FIFA2026_HeatRisk_Report_${yyyy}${mm}${dd}.pdf`);
   };
 
-  const downloadMethodology = () => {
-    const methodologyText = `EQUIDEM FIFA 2026 HEAT RISK OBSERVATORY: ANALYTICAL FRAMEWORK & METHODOLOGY
-====================================================================================
-
-1. OVERVIEW
------------
-The FIFA 2026 Heat Risk Observatory assesses environmental heat exposure conditions across selected FIFA 2026 host venues, training sites, and associated construction or renovation periods in the United States, Canada, and Mexico.
-The observatory is designed to support exploration of potential heat-related risks affecting workers, athletes, spectators, and surrounding communities under a range of environmental and operational conditions.
-The platform combines reanalysis climate data, satellite-derived environmental variables, microclimate modelling, and occupational heat-exposure thresholds to evaluate heat stress conditions across locations and time periods.
-
-2. DATA SOURCES
----------------
-The observatory uses publicly available environmental datasets, including:
-- ERA5 reanalysis data
-- NASA POWER meteorological products
-- FIFA venue and training-site information
-- Publicly documented stadium construction, renovation, modernization, and preparation timelines
-
-Environmental variables incorporated into the analysis include:
-- Air temperature
-- Relative humidity
-- Wind speed
-- Solar radiation
-- Atmospheric pressure
-
-3. WET BULB GLOBE TEMPERATURE (WBGT)
-------------------------------------
-Heat stress conditions are estimated using the Wet Bulb Globe Temperature (WBGT), a widely used heat-stress indicator that incorporates the combined effects of:
-- Air temperature
-- Humidity
-- Solar radiation
-- Wind conditions
-
-The observatory applies a physically based WBGT modelling framework derived from the Liljegren heat-stress methodology to estimate hourly WBGT conditions for each venue.
-
-4. SURFACE ENVIRONMENT SCENARIOS
---------------------------------
-Users may explore two surface environments:
-
-- Grass / Artificial Turf: Represents conditions associated with natural grass or artificial playing surfaces typically found within stadium environments.
-- Concrete Surface: Represents conditions associated with exposed concrete environments that may absorb, store, and re-radiate additional heat energy.
-
-Surface scenarios are intended to support comparative exploration of how environmental conditions may differ across venue surroundings and work environments.
-
-5. TYPICAL CONDITIONS AND EXTREME EVENTS
-----------------------------------------
-The observatory supports two analytical perspectives.
-
-- Typical Conditions: Displays monthly climatological averages representing typical environmental conditions observed during the study period.
-- Extreme Events: Displays peak observed monthly WBGT values representing the most severe heat exposure conditions recorded within the available dataset.
-
-These perspectives allow users to compare expected environmental conditions with potential worst-case heat exposure scenarios.
-
-6. OCCUPATIONAL HEAT EXPOSURE THRESHOLDS
------------------------------------------
-The observatory incorporates threshold values derived from guidance published by the American Conference of Governmental Industrial Hygienists (ACGIH).
-Users may explore multiple combinations of:
-- Workload intensity (Light, Moderate, Heavy)
-- Work-rest schedules
-- Exposure thresholds
-
-Heat-risk categories displayed throughout the dashboard are evaluated relative to the selected ACGIH threshold.
-The observatory is intended as an analytical and educational tool and does not constitute occupational safety guidance or regulatory determination.
-
-7. CONSTRUCTION PERIOD ANALYSIS
--------------------------------
-For venues with documented construction, renovation, modernization, expansion, or tournament-preparation activities, users may examine environmental heat conditions occurring during the associated project period.
-
-Construction-period analysis evaluates:
-- Average WBGT conditions
-- Maximum WBGT conditions
-- Threshold exceedances
-- Percentage of hours above selected thresholds
-- Percentage of days experiencing exceedances
-- Duration of consecutive heat events
-
-This functionality is intended to provide contextual insight into potential environmental heat exposure conditions during periods of venue development and preparation.
-
-8. STUDY PERIOD
----------------
-The current observatory evaluates hourly conditions spanning:
-1 January 2024 - 28 May 2026
-covering FIFA 2026 host venues, training sites, and selected case-study locations.
-
-9. INTERPRETATION
------------------
-The observatory is designed to support transparent exploration of environmental heat conditions rather than prediction of future outcomes.
-Results should be interpreted as estimates derived from available environmental datasets, modelling assumptions, and documented project timelines.
-The platform is intended to encourage evidence-based discussion regarding heat exposure, worker safety, athlete welfare, and climate resilience in the context of major sporting events.`;
-    triggerDownload("EQUIDEM_Observatory_Methodology.txt", methodologyText);
+  const downloadVenueBriefPDF = () => {
+    if (!activeSelectedStadium) return;
+    const venue = activeSelectedStadium;
+    const doc = new jsPDF();
+    addPdfHeader(doc, `FOCAL SITE SURVEY: ${venue.stadiumName.toUpperCase()}`);
+    
+    let y = 46;
+    
+    // Section 1: GEOGRAPHIC & PHYSICAL CONTEXT
+    y = drawSectionHeader(doc, "1. GEOGRAPHIC & STRUCTURAL PROFILE", y);
+    
+    const info = getConstructionInfo(venue.key);
+    const totalHours = analysisPeriod === 'Construction Period Only' ? (info.durationDays * 24) : 21096;
+    const percentHours = ((venue.highRiskHours / totalHours) * 100).toFixed(2);
+    
+    const geoProps = [
+      ["Location Name", `${venue.name}, ${venue.country}`],
+      ["Observer Coordinates", `Latitude: ${venue.lat.toFixed(5)}N, Longitude: ${venue.lon.toFixed(5)}W`],
+      ["Altitude Class", `${venue.elevation} above mean sea level`],
+      ["Köppen-Geiger Zone", venue.climateZone],
+      ["Structural Configuration", `${venue.roof} Roof Design`],
+      ["Static Seat Capacity", `${venue.capacity.toLocaleString()} spectators`],
+      ["Observed Surface Material", surfaceMode]
+    ];
+    
+    geoProps.forEach(([label, val]) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(`${label}:`, 18, y);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(val, 78, y);
+      y += 5.5;
+    });
+    
+    y += 5;
+    
+    // Section 2: HISTORICAL WEATHER MATRIX (BASELINE)
+    y = drawSectionHeader(doc, "2. REGISTERED BASELINE CLIMATOLOGY", y);
+    
+    const weatherProps = [
+      ["Average Multi-Year Ambient Temp", formatTemp(venue.avgTemp, tempUnit)],
+      ["Peak Single-Hour Temperature", `${formatTemp(venue.maxTemp, tempUnit)} (Recorded ${venue.maxTempDate})`],
+      ["Average Climatological WBGT", formatTemp(venue.avgWBGT, tempUnit)],
+      ["Peak Observed Single-Hour WBGT", `${formatTemp(venue.maxWBGT, tempUnit)} (Recorded ${venue.maxWBGTDate})`],
+      ["Mean Relative Moisture Saturation", `${venue.avgRH.toFixed(1)}%`],
+      ["Average Ground Solar Flux Intensity", `${venue.avgSolar.toFixed(1)} W/m²`]
+    ];
+    
+    weatherProps.forEach(([label, val]) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(`${label}:`, 18, y);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(val, 84, y);
+      y += 5.5;
+    });
+    
+    y += 5;
+    
+    // Section 3: OCCUPATIONAL STRESS EXPOSURE METRICS (ACTIVE SETTINGS)
+    y = drawSectionHeader(doc, `3. OCCUPATIONAL STRESS BURDENS (Threshold: ${formatTemp(activeThreshold, tempUnit)} WBGT)`, y);
+    
+    const exposureProps = [
+      ["Active Exposure Segment", analysisPeriod],
+      ["Accumulated Risk Exposure Hours", `${venue.highRiskHours.toLocaleString()} hours`],
+      ["Normalized Direct Exposure Portion", `${percentHours}% of analyzed period`],
+      ["Total Exceedance Safety Days", `${venue.highRiskDays} individual days`],
+      ["Longest Contiguous Heat Block", `${venue.longestHeatEvent} consecutive hours`],
+      ["Maximum Sustained Extreme Spell", `${venue.consecutiveExceedanceDays} consecutive high-risk days`]
+    ];
+    
+    exposureProps.forEach(([label, val]) => {
+      doc.setFont('Helvetica', 'bold');
+      doc.text(`${label}:`, 18, y);
+      doc.setFont('Helvetica', 'normal');
+      doc.text(val, 84, y);
+      y += 5.5;
+    });
+    
+    y += 5;
+    
+    // Section 4: MODERNIZATION & PREPARATION TIMELINES
+    if (info.startDate) {
+      y = drawSectionHeader(doc, "4. TOURNAMENT PREPARATION & CONSTRUCTION SEGMENTS", y);
+      const constProps = [
+        ["Preparation Project Tenure", info.formattedRange],
+        ["Temporal Span Duration", `${info.durationDays} Active Calendar Days`],
+        ["Share of Aggregate Series Span", `${info.sharePercentage}% duration`],
+        ["Renovation Scope Focus", venue.renovationDetails]
+      ];
+      
+      constProps.forEach(([label, val]) => {
+        doc.setFont('Helvetica', 'bold');
+        doc.text(`${label}:`, 18, y);
+        doc.setFont('Helvetica', 'normal');
+        if (label === "Renovation Scope Focus") {
+          y = printWrappedText(doc, val, 78, y, 118, 5);
+        } else {
+          doc.text(val, 78, y);
+          y += 5.5;
+        }
+      });
+    }
+    
+    const sanitizedName = venue.stadiumName.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`${sanitizedName}_VenueBrief.pdf`);
   };
 
-  const downloadDataDictionary = () => {
-    const dictText = `EQUIDEM DATA DICTIONARY - METRIC SPECS
-========================================
+  const downloadSummaryCSV = () => {
+    const headers = [
+      "Venue Key",
+      "City_Region",
+      "Stadium Name",
+      "Country",
+      "Type",
+      "Climate Zone",
+      "Elevation (m)",
+      "Avg Air Temp (C)",
+      "Max Air Temp (C)",
+      "Avg WBGT (C)",
+      "Max WBGT (C)",
+      "High Risk Hours (>=28C)",
+      "High Risk Days",
+      "Longest Heat Event (hrs)"
+    ];
+    
+    const csvRows = [headers.join(",")];
+    
+    dashboardData.stadiums.forEach(st => {
+      const row = [
+        st.key,
+        `"${st.name}"`,
+        `"${st.stadiumName}"`,
+        st.country,
+        st.type,
+        st.climateZone,
+        st.elevation,
+        st.avgTemp.toFixed(2),
+        st.maxTemp.toFixed(1),
+        st.avgWBGT.toFixed(2),
+        st.maxWBGT.toFixed(1),
+        st.highRiskHours,
+        st.highRiskDays,
+        st.longestHeatEvent
+      ];
+      csvRows.push(row.join(","));
+    });
+    
+    triggerCsvDownload("EQUIDEM_FIFA2026_HeatSummary_Database.csv", csvRows.join("\n"));
+  };
 
-1. avgWBGT
-   - Description: Historical average Wet Bulb Globe Temperature mapped across all hourly data points.
-   - Units: Celsius (°C)
-   
-2. maxWBGT
-   - Description: Maximum single-hour heat stress value recorded at the venue centroid.
-   - Units: Celsius (°C)
+  const downloadConstructionCSV = () => {
+    const headers = [
+      "Venue Key",
+      "City_Region",
+      "Stadium Name",
+      "Country",
+      "Construction Start",
+      "Construction End",
+      "Duration Days",
+      "Avg Air Temp (C)",
+      "Max Air Temp (C)",
+      "Avg WBGT (C)",
+      "Max WBGT (C)",
+      "High Risk Hours",
+      "High Risk Days"
+    ];
+    
+    const csvRows = [headers.join(",")];
+    
+    dashboardData.stadiums.forEach(st => {
+      const info = getConstructionInfo(st.key);
+      if (info.startDate) {
+        const row = [
+          st.key,
+          `"${st.name}"`,
+          `"${st.stadiumName}"`,
+          st.country,
+          info.startDate,
+          info.endDate,
+          info.durationDays,
+          st.avgTemp.toFixed(2),
+          st.maxTemp.toFixed(1),
+          st.avgWBGT.toFixed(2),
+          st.maxWBGT.toFixed(1),
+          st.highRiskHours,
+          st.highRiskDays
+        ];
+        csvRows.push(row.join(","));
+      }
+    });
+    
+    triggerCsvDownload("EQUIDEM_FIFA2026_StadiumConstruction_Database.csv", csvRows.join("\n"));
+  };
 
-3. highRiskHours
-   - Description: The total count of hours which exceeded the 28.0°C WBGT threshold.
-   - Policy Relevance: Represents the baseline environmental heat exposure magnitude.
-
-4. longestHeatEvent
-   - Description: The longest contiguous string of consecutive hours keeping WBGT at or above 28°C.
-   - Target Use: Indicates persistent heatwave duration threat.
-
-5. climateZone
-   - Description: Climate classification according to the Köppen-Geiger mapping system.
-   
-6. elevation
-   - Description: Height of the playing surface centroid relative to Mean Sea Level (MSL).`;
-    triggerDownload("EQUIDEM_Observatory_Data_Dictionary.txt", dictText);
+  const downloadMethodologyPDF = () => {
+    const doc = new jsPDF();
+    addPdfHeader(doc, "OBSERVATORY METHODOLOGY & ANALYTICAL FRAMEWORK");
+    
+    let y = 46;
+    
+    const sections = [
+      {
+        title: "1. DATA OVERVIEW & CLIMATOLOGY DATASETS",
+        text: "The FIFA 2026 Heat Risk Observatory relies on long-term historical environmental reconstructions sourced directly from ECMWF ERA5 reanalysis and NASA POWER meteorology repositories. Parameters processed on an hourly cycle span air temperature, water vapor moisture limits (dew point, relative humidity), boundary wind velocity index, and downwelling solar rays fluxes. Raw climatological observations are mapped inside standard grids spanning 1 January 2024 to 28 May 2026 (879 full days, 21,096 complete hourly slices)."
+      },
+      {
+        title: "2. WET BULB GLOBE TEMPERATURE (WBGT) PHYSICAL MODEL",
+        text: "Wet Bulb Globe Temperature represents the premier global occupational and sporting health indicator. By combining dry-bulb shaded air heating, evaporate moisture dissipation (wet-bulb), and radiant solar beam absorption, WBGT maps the absolute direct physiological limit of human heat strain. The observatory relies on the Liljegren physical model to convert standard public observation variables into detailed hourly WBGT surface estimations over varying micro-climates."
+      },
+      {
+        title: "3. CLIMATIC SCENARIOS & SURFACE ALBEDO",
+        text: "Users may contrast two primary scenarios:\n\n• Grass / Artificial Turf: Simulates typical stadium playing field microclimates. Reflective albedo and moisture transpiration are modeled with standard sport field indicators.\n\n• Concrete Surface: Simulates exposed urban concrete plazas surrounding transport nodes and venues. Higher heat retention, solar trapping coefficients, and complete absence of evaporating vegetative cooling are represented here."
+      },
+      {
+        title: "4. OCCUPATIONAL HEAT REGIMENS & ACGIH STANDARDS",
+        text: "To represent actual physiological risk thresholds on host cities, the observatory anchors observations of extreme events relative to the formal guidance guidelines of the American Conference of Governmental Industrial Hygienists (ACGIH). Physical workloads are rated across Light, Moderate, and Heavy grades. Continuous operations are compared directly to regulated work-rest ratio regimens (75/25, 50/50, 25/75 duty cycles)."
+      },
+      {
+        title: "5. STADIUM TOURNAMENT WORK PREPARATION TIMES",
+        text: "For host venues undergoing major prep phases, modernization, or expansion (e.g. Azteca, Dallas, Miami), the platform isolates environmental stress occurring exclusively during identified construction windows. Hours of risk exceedance, consecution statistics, and extreme episodes are mapped specifically during these historical calendar segments to analyze workers' heat exposures."
+      },
+      {
+        title: "6. RESEARCH INTERPRETATION & USE POLICY",
+        text: "This observatory acts as an evidence-based human safety and public policy information system. It is designed to support academic inquiry, policy framing, safe shift organization, and spectator defense planning by municipal and athletic organizers. It does not constitute commercial regulatory warnings or acute weather forecasting products. Users are urged to integrate these climate baseline statistics directly into structural risk analyses."
+      }
+    ];
+    
+    sections.forEach((section) => {
+      y = drawSectionHeader(doc, section.title, y);
+      y = printWrappedText(doc, section.text, 14, y, 180, 5);
+      y += 4;
+    });
+    
+    doc.save("FIFA2026_HeatRisk_Methodology.pdf");
   };
 
   const downloadVenueReport = (venue: Stadium) => {
-    const venueReport = `EQUIDEM SPECIFIC VENUE PROFILE REPORT
-stadiumName: ${venue.stadiumName}
---------------------------------------------------
-Geography: ${venue.name}, ${venue.country} (Lat: ${venue.lat.toFixed(5)}, Lon: ${venue.lon.toFixed(5)})
-Class Code: ${venue.climateZone}
-Elevation: ${venue.elevation}
-Physical Configuration: ${venue.roof} Roof
-
-HISTORICAL WEATHER METRICS:
-- Historical Average Air Temp: ${formatTemp(venue.avgTemp, tempUnit)}
-- Single Hour Peak Temperature: ${formatTemp(venue.maxTemp, tempUnit)} (Observed on ${venue.maxTempDate})
-- Historical Average WBGT: ${formatTemp(venue.avgWBGT, tempUnit)}
-- Single Hour Peak Heat Stress: ${formatTemp(venue.maxWBGT, tempUnit)} (Observed on ${venue.maxWBGTDate})
-- Mean Relative Humidity: ${venue.avgRH.toFixed(1)}%
-- Avg Solar Load: ${venue.avgSolar.toFixed(1)} W/m²
-
-POLICY COMPLIANCE RISKS (NON-ACUTE):
-- High-Risk Environmental Exposure: ${venue.highRiskHours} total hours above the active ACGIH OEL limit of ${formatTemp(activeThreshold, tempUnit)} WBGT
-- Very High-Risk Environmental Exposure: ${venue.veryHighRiskHours} hours above ${formatTemp(activeThreshold + 2.0, tempUnit)} WBGT
-- Extreme Environmental Exposure: ${venue.extremeRiskHours} hours above ${formatTemp(activeThreshold + 4.0, tempUnit)} WBGT
-- Threshold Exceedance Days: ${venue.highRiskDays} days
-- Longest Contiguous Heatwave Block: ${venue.longestHeatEvent} consecutive hours exceeding threshold
-- Max Peak Exceedance Block: ${venue.consecutiveExceedanceDays} consecutive high-risk days
-
-STADIUM CONTEXT & RENOVATION DETAILS:
-- Capacity Limit: ${venue.capacity} spectators
-- Newly Constructed: ${venue.newlyConstructed ? 'Yes' : 'No'}
-- Renovation Scope: ${venue.renovationDetails}
-
-SAFETY RECOMMENDATIONS FOR THIS VENUE:
-- Implement Wet Bulb temperature automated cooling signals on match days.
-- Configure physical air-curtains or micro-misting corridors on active ingress walks.
-- Setup mandatory shaded shift pauses for groundskeeping crews during June-September.
-
-EQUIDEM Climate Observatory Policy Division.`;
-    triggerDownload(`${venue.key}_Specific_Heat_Burdens.txt`, venueReport);
+    // Legacy support redirecting to the venue brief PDF to maintain perfect styling consistency
+    downloadVenueBriefPDF();
   };
 
   // -------------------------------------------------------------
@@ -550,9 +742,26 @@ EQUIDEM Climate Observatory Policy Division.`;
         ev.country.toLowerCase().includes(searchEventQuery.toLowerCase());
       
       const matchCat = eventCategoryFilter === 'All' || ev.riskCategory === eventCategoryFilter;
-      return matchSearch && matchCat;
+      
+      let matchPeriod = true;
+      if (analysisPeriod === 'Construction Period Only') {
+        const sKey = ev.stadiumKey || STADIUMS_DATA.find(s => s.name === ev.stadium)?.key;
+        if (sKey) {
+          const info = getConstructionInfo(sKey);
+          if (info && info.startDate && info.endDate) {
+            const eventDateOnly = ev.date.split(' ')[0];
+            matchPeriod = eventDateOnly >= info.startDate && eventDateOnly <= info.endDate;
+          } else {
+            matchPeriod = false;
+          }
+        } else {
+          matchPeriod = false;
+        }
+      }
+
+      return matchSearch && matchCat && matchPeriod;
     });
-  }, [dashboardData.extremeEvents, searchEventQuery, eventCategoryFilter]);
+  }, [dashboardData.extremeEvents, searchEventQuery, eventCategoryFilter, analysisPeriod]);
 
   const sortedStadiumsForComparison = useMemo(() => {
     const list = dashboardData.stadiums.filter((st) => 
@@ -684,115 +893,113 @@ EQUIDEM Climate Observatory Policy Division.`;
                 </div>
               </section>
 
-              {/* NEW SECTION: WHY THIS OBSERVATORY EXISTS */}
-              <section className="bg-[#F8FAFC] border border-slate-200/80 rounded-xl p-6 lg:p-10 shadow-xs space-y-8">
-                {/* Header Info */}
+              {/* ABOUT THE OBSERVATORY (5 Priority Pillars) */}
+              <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-8">
                 <div className="space-y-3">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white text-slate-800 border border-slate-200 text-xs font-semibold rounded uppercase tracking-wider shadow-3xs">
-                    <ShieldAlert className="w-3.5 h-3.5 text-[#1e3a8a]" /> Institutional Background and Context
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded uppercase tracking-wider">
+                    <Compass className="w-3.5 h-3.5 text-blue-900" /> Platform Overview
                   </div>
                   
-                  <div className="space-y-4">
-                    <h3 className="text-xl lg:text-2xl font-black tracking-tight text-slate-900 leading-snug">
-                      Why This Observatory Exists
+                  <div className="space-y-2">
+                    <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-slate-900 leading-snug font-sans">
+                      About the Heat Risk Observatory
                     </h3>
-                    <div className="h-[2px] w-12 bg-[#1e3a8a]"></div>
-                    
-                    <p className="text-[#152e6d] text-sm font-medium leading-relaxed max-w-3xl">
-                      This observatory operates under a public interest mandate to systematically analyze, map, and document the extreme environmental heat risks associated with the FIFA World Cup 2026 venue preparations and operational infrastructures.
+                    <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
+                      This public-interest research tool maps and evaluates environmental heat stress across the host venues of the 2026 World Cup. By translating raw meteorological records into clear public indicators, the platform helps protect manual workforces, athletes, and event spectators.
                     </p>
                   </div>
                 </div>
 
-                {/* Horizontal Information Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Card 1: Why This Matters */}
-                  <div className="bg-white border border-slate-150 rounded-lg p-5 flex flex-col justify-between hover:shadow-xs hover:border-slate-300 transition shadow-3xs min-h-[140px]">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-7 h-7 rounded bg-rose-50 text-rose-700 flex items-center justify-center shrink-0 border border-rose-100">
-                          <HeartPulse className="w-3.5 h-3.5" />
-                        </div>
-                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">Why This Matters</h4>
+                {/* 5 columns detailing what, why, explore, data, filters */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+                  <div className="bg-slate-50/50 border border-slate-150 rounded-lg p-5 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-blue-50 text-blue-900 flex items-center justify-center shrink-0 border border-blue-100">
+                        <Compass className="w-3.5 h-3.5" />
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                        Workforces involved in retrofitting and stadium-level construction preparations experienced high levels of environmental heat load, creating physical and clinical safety hazards.
-                      </p>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">1. What It Is</h4>
                     </div>
+                    <p className="text-xs text-slate-605 leading-relaxed font-normal font-sans">
+                      A peer-reviewed climate monitoring dashboard tracking dangerous heat stress levels for official match venues and base camps.
+                    </p>
                   </div>
 
-                  {/* Card 2: Core Mandate */}
-                  <div className="bg-white border border-slate-150 rounded-lg p-5 flex flex-col justify-between hover:shadow-xs hover:border-slate-300 transition shadow-3xs min-h-[140px]">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-7 h-7 rounded bg-blue-50 text-[#1e3a8a] flex items-center justify-center shrink-0 border border-blue-100">
-                          <Scale className="w-3.5 h-3.5" />
-                        </div>
-                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">Core Mandate</h4>
+                  <div className="bg-slate-50/50 border border-slate-150 rounded-lg p-5 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-rose-50 text-rose-700 flex items-center justify-center shrink-0 border border-rose-100">
+                        <HeartPulse className="w-3.5 h-3.5" />
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                        To translate complex microclimatology and atmosphere physics models into clear, transparent human-rights indicators and localized heat stress warnings.
-                      </p>
+                      <h4 className="text-xs font-bold text-slate-909 uppercase tracking-tight">2. Why Created</h4>
                     </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
+                      To safeguard stadium construction and retrofit workforces, as well as athletes and spectators, from intense peak-summer temperatures.
+                    </p>
                   </div>
 
-                  {/* Card 3: Research Context */}
-                  <div className="bg-white border border-slate-150 rounded-lg p-5 flex flex-col justify-between hover:shadow-xs hover:border-slate-300 transition shadow-3xs min-h-[140px]">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-7 h-7 rounded bg-slate-50 text-slate-700 flex items-center justify-center shrink-0 border border-slate-200">
-                          <BookOpen className="w-3.5 h-3.5" />
-                        </div>
-                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">Research Context</h4>
+                  <div className="bg-slate-50/50 border border-slate-150 rounded-lg p-5 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                        <Sliders className="w-3.5 h-3.5" />
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                        Reconstructing climate models across three sovereign nations to isolate extreme thermal outliers, supporting evidence-based labor safety revisions.
-                      </p>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">3. What to Explore</h4>
                     </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
+                      Search and navigate our live map, hourly heat trajectories, venue risk rankings, and statistical hazard comparisons.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50/50 border border-slate-150 rounded-lg p-5 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
+                        <Database className="w-3.5 h-3.5" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight font-sans">4. Data Used</h4>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans font-sans">
+                      Hourly climate estimates covering 29 months (January 2024 to May 2026), incorporating air temperature, humidity, solar radiation, and wind.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50/50 border border-slate-150 rounded-lg p-5 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0 border border-indigo-100">
+                        <Activity className="w-3.5 h-3.5" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">5. User Filters</h4>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
+                      Simulate heat risks across grass vs. concrete, different outdoor workloads, and occupational work-rest schedules.
+                    </p>
                   </div>
                 </div>
 
-                {/* Key Statistic Highlight strip */}
-                <div className="bg-white border border-slate-150 rounded-lg p-4 shadow-3xs">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-150">
-                    <div className="text-center lg:text-left py-2 lg:py-0 lg:px-4 flex flex-col justify-center">
-                      <div className="text-2xl font-extrabold text-slate-900 font-sans tracking-tight">16</div>
-                      <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">FIFA Match Venues</div>
-                    </div>
-                    <div className="text-center lg:text-left pt-2 lg:pt-0 lg:px-4 flex flex-col justify-center">
-                      <div className="text-2xl font-extrabold text-slate-900 font-sans tracking-tight">48</div>
-                      <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Training & Base Camps</div>
-                    </div>
-                    <div className="text-center lg:text-left pt-2 lg:pt-0 lg:px-4 flex flex-col justify-center">
-                      <div className="text-2xl font-extrabold text-[#1e3a8a] font-sans tracking-tight">3</div>
-                      <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Sovereign Host Nations</div>
-                    </div>
-                    <div className="text-center lg:text-left pt-2 lg:pt-0 lg:px-4 flex flex-col justify-center">
-                      <div className="text-2xl font-extrabold text-[#1db954] lg:text-[#1e3a8a] font-sans tracking-tight">Hourly</div>
-                      <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Heat-Risk Screening</div>
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-slate-150 pt-6">
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">
+                      Renovation Focus and Worker Health Hazards
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
+                      While the tournament relies on pre-existing stadiums rather than building new ones, extensive upgrades and retrofits are occurring across many host cities. Labor forces carrying out strenuous manual actions outdoors during hot summer months face significant heat-stress risks, which require clear, structured work-break regimens to mitigate.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">
+                      Evidence-Based Risk Management
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
+                      By documenting environmental heat exposures objectively, this platform functions as a tool for public accountability. Civil groups, labor associations, and sports federations can rely on standard indicators to design proactive mitigation measures for match venues and team training locations.
+                    </p>
                   </div>
                 </div>
 
-                {/* Detailed Explanation Paragraphs (Constrained for readability) */}
-                <div className="space-y-4 max-w-3xl text-slate-700 text-sm leading-relaxed font-sans border-t border-slate-150 pt-6">
-                  <p>
-                    While the FIFA World Cup 2026 has been widely characterized as requiring no brand-new stadium construction—a milestone hailed for its apparent ecological and infrastructure-efficiency standards—multiple host venues in fact underwent significant renovation, modernization, physical expansion, and structural upgrades of baseline capacities. These extensive physical modifications triggered carbon-intensive, localized construction activities and stadium-level preparations across all host cities.
-                  </p>
-                  <p>
-                    A critical hazard identified by this platform relates to the <strong className="text-slate-900 font-semibold">workforces involved in active construction, scaffolding, retrofitting, and physical stadium preparation activities, who may have experienced substantial environmental heat exposure</strong>. Carrying out strenuous manual labor outdoors during intense peak-summer conditions, these workers faced direct risks that this platform documents.
-                  </p>
-                </div>
-
-                {/* Evidence Note Footer */}
                 <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1">
-                  <Info className="w-4 h-4 text-[#1e3a8a] shrink-0" />
-                  <span>Evidence-based hazard analysis and heat exposure reconstructions compiled by the Equidem Research Group.</span>
+                  <Info className="w-4 h-4 text-blue-900 shrink-0" />
+                  <span>Climate records and heat indices are intended for policy assessments and public information.</span>
                 </div>
               </section>
 
               {/* STUDY COVERAGE PERIOD METHODOLOGY CARD */}
-              <section className="bg-white border border-slate-205 rounded-xl p-6 lg:p-8 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="md:col-span-2 space-y-3">
                   <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 text-[#1e3a8a] border border-blue-100 text-[10px] font-bold uppercase tracking-wider rounded font-mono">
                     Temporal Parameters
@@ -800,7 +1007,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                   <h3 className="text-lg font-bold text-slate-900 tracking-tight font-sans">
                     Study Coverage Period
                   </h3>
-                  <div className="text-2xl font-black text-slate-905 tracking-tight font-sans">
+                  <div className="text-2xl font-black text-slate-900 tracking-tight font-sans">
                     January 2024 – 28 May 2026
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed font-sans font-medium">
@@ -959,322 +1166,6 @@ EQUIDEM Climate Observatory Policy Division.`;
                 />
               </section>
 
-              {/* NEW SECTION: WHAT IS HEAT STRESS? */}
-              <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold tracking-widest text-[#1e3a8a] uppercase bg-blue-50 px-2 py-0.5 rounded">Physiological Foundations</span>
-                  <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">What Is Heat Stress?</h3>
-                  <div className="h-1 w-20 bg-blue-900 rounded"></div>
-                  <p className="text-sm text-slate-500 max-w-3xl leading-relaxed">
-                    Heat stress represents the accumulation of environmental heat load on the human body, forcing metabolic and cardiorespiratory systems into critical strain. Under high environmental burdens, struggle for active thermal equilibrium compromises performance long before catastrophic illness occurs.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Card 1 */}
-                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
-                    <div className="w-9 h-9 rounded bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-100 shadow-3xs">
-                      <HeartPulse className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-bold text-slate-900 text-sm">Target Thermoregulation</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                      Heat stress occurs when the body struggles to maintain a safe internal temperature, exceeding metabolic sweat limits.
-                    </p>
-                  </div>
-
-                  {/* Card 2 */}
-                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
-                    <div className="w-9 h-9 rounded bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100 shadow-3xs">
-                      <Sliders className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-bold text-slate-900 text-sm">Combined Weather Stressors</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                      High temperatures, humidity, sunlight, and low wind can combine to create dangerous environmental conditions.
-                    </p>
-                  </div>
-
-                  {/* Card 3 */}
-                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
-                    <div className="w-9 h-9 rounded bg-blue-50 text-blue-750 flex items-center justify-center border border-blue-100 shadow-3xs">
-                      <Scale className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-bold text-slate-900 text-sm font-sans">Overall Human Impact</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                      Heat stress can affect health, safety, productivity, and physical performance of workers and athletes alike.
-                    </p>
-                  </div>
-
-                  {/* Card 4 */}
-                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
-                    <div className="w-9 h-9 rounded bg-red-50 text-red-700 flex items-center justify-center border border-red-100 shadow-3xs">
-                      <Flame className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-bold text-slate-900 text-sm">Acute Clinical Emergencies</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed font-normal font-sans">
-                      Severe heat stress can contribute directly to dangerous medical complications, including heat exhaustion and heat stroke.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* NEW SECTION: UNDERSTANDING WBGT */}
-              <section className="bg-slate-50 border border-slate-200 rounded-xl p-6 lg:p-10 shadow-xs space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  
-                  {/* Left Column: Explanatory */}
-                  <div className="lg:col-span-12 xl:col-span-5 space-y-4">
-                    <span className="text-[10px] font-bold tracking-widest text-[#1e3a8a] uppercase bg-blue-50 px-2 py-1 rounded font-sans">Thermodynamic Standards</span>
-                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">Understanding Wet Bulb Globe Temperature (WBGT)</h3>
-                    <div className="h-1 w-20 bg-blue-900 rounded"></div>
-                    <p className="text-sm font-semibold text-slate-800 leading-relaxed font-sans">
-                      "WBGT is an internationally recognized measure of environmental heat stress."
-                    </p>
-                    <p className="text-xs text-slate-655 leading-relaxed font-normal">
-                      Traditional dry-bulb thermometers capture simple air temperature but represent a critical security blindspot for physical work crews and outdoor staging forces. Because it ignores humidity, solar irradiance, and convective cooling, air temperature alone fails to indicate how quickly the human body can dissipate metabolic heat loads. 
-                    </p>
-                    <p className="text-xs text-slate-655 leading-relaxed font-normal">
-                      By contrast, WBGT represents the true thermal impact on biological organisms by incorporating moisture vapor, air flows, and solar energy loads. It stands as the premier standard accepted by WHO, ISO, and leading safety agencies.
-                    </p>
-
-                    {/* Highly aesthetic local warning info card */}
-                    <div className="bg-blue-900 text-blue-50 border border-blue-800 p-4 rounded-xl flex gap-3 shadow-xs items-start mt-2">
-                      <Info className="w-5 h-5 text-blue-300 shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300">Comparative Dynamics Note</span>
-                        <p className="text-xs text-blue-100 leading-relaxed">
-                          Two days with the same air temperature can feel very different if humidity, sunlight, or wind conditions differ. WBGT captures these combined effects.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Visual Component Diagram */}
-                  <div className="lg:col-span-12 xl:col-span-7 bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2">
-                       Visual Matrix: Component Drivers of WBGT
-                    </h4>
-                    
-                    <p className="text-xs text-slate-505 font-medium">
-                      Click each element to explore how it registers the thermal burden:
-                    </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-2">
-                      {/* Factor 1 */}
-                      <button 
-                        onClick={() => setSelectedWbgtFactor('temp')}
-                        type="button"
-                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
-                          selectedWbgtFactor === 'temp' 
-                            ? 'bg-blue-50/60 border-blue-400 shadow-2xs' 
-                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Thermometer className="w-4 h-4 text-blue-900" />
-                          <span className="text-xs font-bold text-slate-905">Air Temperature</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
-                          Baseline dry-bulb measurement of ambient heat in shaded conditions. Represents the atmospheric temperature.
-                        </p>
-                      </button>
-
-                      {/* Factor 2 */}
-                      <button 
-                        onClick={() => setSelectedWbgtFactor('humid')}
-                        type="button"
-                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
-                          selectedWbgtFactor === 'humid' 
-                            ? 'bg-blue-50/60 border-blue-400 shadow-2xs' 
-                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Droplets className="w-4 h-4 text-blue-600" />
-                          <span className="text-xs font-bold text-slate-905">Humidity (Wet Bulb)</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
-                          Measures cooling via evaporation. Elevated humidity limits sweat evaporation efficacy, compounding physical strain.
-                        </p>
-                      </button>
-
-                      {/* Factor 3 */}
-                      <button 
-                        onClick={() => setSelectedWbgtFactor('sun')}
-                        type="button"
-                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
-                          selectedWbgtFactor === 'sun' 
-                            ? 'bg-blue-50/60 border-blue-400 shadow-2xs' 
-                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Sun className="w-4 h-4 text-amber-600" />
-                          <span className="text-xs font-bold text-slate-905">Solar Radiation</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
-                          Globe temperature calculating direct and reflected solar rays, particularly severe on urban concrete plazas.
-                        </p>
-                      </button>
-
-                      {/* Factor 4 */}
-                      <button 
-                        onClick={() => setSelectedWbgtFactor('wind')}
-                        type="button"
-                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
-                          selectedWbgtFactor === 'wind' 
-                            ? 'bg-blue-50/60 border-blue-400 shadow-2xs' 
-                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Wind className="w-4 h-4 text-emerald-600" />
-                          <span className="text-xs font-bold text-slate-905">Wind Speed</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
-                          Governs air motion and convective drying. Faster air currents help dispel skin-boundary humidity pools.
-                        </p>
-                      </button>
-                    </div>
-
-                    {/* Explanatory Details Box */}
-                    <AnimatePresence mode="wait">
-                      {selectedWbgtFactor && (() => {
-                        const info = WBGT_FACTOR_INFO[selectedWbgtFactor];
-                        if (!info) return null;
-                        return (
-                          <motion.div
-                            key={selectedWbgtFactor}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4"
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 pb-3">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-2.5 h-2.5 rounded-full ${info.dotColor} animate-pulse`} />
-                                <h5 className="font-bold text-xs text-slate-900 tracking-tight uppercase">Selected Vector: {info.name}</h5>
-                              </div>
-                              <span className={`px-2.5 py-0.5 rounded text-[9px] font-extrabold tracking-wide uppercase border ${info.badgeColor}`}>
-                                {info.influenceLevel}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-                              <div className="space-y-1.5">
-                                <span className="font-bold text-slate-550 uppercase text-[9px] tracking-wider block">Role in WBGT Calculations</span>
-                                <p className="text-slate-600 leading-relaxed font-sans">{info.role}</p>
-                              </div>
-                              <div className="space-y-1.5">
-                                <span className="font-bold text-slate-550 uppercase text-[9px] tracking-wider block">Influence on WBGT Output</span>
-                                <p className="text-slate-600 leading-relaxed font-sans">{info.influence}</p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })()}
-                    </AnimatePresence>
-
-                    {/* Thermodynamic Synthesis Diagram */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
-                      <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
-                        <Sliders className="w-4 h-4 text-slate-700" />
-                        <h5 className="font-bold text-xs text-slate-900 font-sans uppercase tracking-tight">Thermodynamic Synthesis Flow Diagram</h5>
-                      </div>
-
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center relative">
-                        {/* Column 1: Inputs Block (4 cols) */}
-                        <div className="lg:col-span-4 flex flex-col gap-2">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Environmental Inputs</span>
-                          
-                          {/* Air Temperature */}
-                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
-                            selectedWbgtFactor === 'temp'
-                              ? 'bg-amber-50 border-amber-300 text-amber-900 scale-[1.02] shadow-2xs font-extrabold'
-                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              <Thermometer className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">Air Temperature</span>
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider">10% Weight</span>
-                          </div>
-
-                          {/* Humidity */}
-                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
-                            selectedWbgtFactor === 'humid'
-                              ? 'bg-red-50 border-red-300 text-red-900 scale-[1.02] shadow-2xs font-extrabold'
-                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              <Droplets className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">Humidity (Wet Bulb)</span>
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider">70% Weight</span>
-                          </div>
-
-                          {/* Solar Radiation */}
-                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
-                            selectedWbgtFactor === 'sun'
-                              ? 'bg-amber-50 border-amber-300 text-amber-905 scale-[1.02] shadow-2xs font-extrabold'
-                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              <Sun className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">Solar Radiation</span>
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider">20% Weight</span>
-                          </div>
-
-                          {/* Wind Speed */}
-                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
-                            selectedWbgtFactor === 'wind'
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-900 scale-[1.02] shadow-2xs font-extrabold'
-                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              <Wind className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">Wind Speed</span>
-                            </div>
-                            <span className="text-[9px] font-black uppercase tracking-wider">Cooling Modifier</span>
-                          </div>
-                        </div>
-
-                        {/* Column 2: Connector path (4 cols) */}
-                        <div className="lg:col-span-4 flex flex-col items-center justify-center py-2 lg:py-0">
-                          <div className="hidden lg:flex w-full items-center justify-between px-2 text-slate-300">
-                            <span className={`h-0.5 flex-1 transition-all duration-300 ${
-                              selectedWbgtFactor ? 'bg-gradient-to-r from-blue-400 to-blue-600' : 'bg-slate-200'
-                            }`} />
-                            <div className="p-1 px-3.5 rounded bg-blue-900 text-white font-mono text-[9px] font-black tracking-widest animate-pulse uppercase">
-                              Liljegren Model
-                            </div>
-                            <span className={`h-0.5 flex-1 transition-all duration-300 ${
-                              selectedWbgtFactor ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-slate-200'
-                            }`} />
-                          </div>
-                          
-                          <div className="lg:hidden flex flex-col items-center gap-1 my-1">
-                            <div className="px-3.5 py-1 rounded bg-blue-900 text-white font-mono text-[9px] font-black tracking-widest uppercase">
-                              Liljegren Integration Engine
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Column 3: Output Destination (4 cols) */}
-                        <div className="lg:col-span-4 bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-1.5 shadow-md">
-                          <span className="text-[8px] text-slate-400 block font-bold uppercase tracking-widest">Physiological Burden</span>
-                          <span className="text-sm font-black text-blue-400 font-mono block">Calculated WBGT</span>
-                          <p className="text-[9px] text-slate-400 font-normal leading-normal font-sans pt-1">
-                            Integrates humidity, radiant solar heat, Wind convection speed, and shade temperature into a single dynamic standard.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
                        {/* NEW SECTION: HEAT-RISK CLASSIFICATIONS */}
               <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6">
                 <div className="space-y-2">
@@ -1339,7 +1230,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                         <div className="w-full md:w-60 p-4 border-b md:border-b-0 md:border-r border-slate-100 flex items-center justify-between font-bold bg-slate-50/55 shadow-3xs shrink-0">
                           <div className="flex items-center gap-2.5">
                             <span className={`w-3 h-3 rounded-full ${tr.dotColorClass} shrink-0`}></span>
-                            <span className="text-sm text-slate-905 font-sans">{tr.level}</span>
+                            <span className="text-sm text-slate-900 font-sans">{tr.level}</span>
                           </div>
                           <span className="text-xs text-slate-500 font-bold tracking-tight font-mono">{tr.range}</span>
                         </div>
@@ -1489,7 +1380,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                         <button 
                           onClick={() => setIsMethodologyModalOpen(false)}
                           type="button"
-                          className="bg-slate-905 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded font-sans"
+                          className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded font-sans"
                         >
                           I Understand
                         </button>
@@ -1564,6 +1455,321 @@ EQUIDEM Climate Observatory Policy Division.`;
                 </div>
               </section>
 
+              {/* NEW SECTION: ABOUT HEAT STRESS (REPLACED AND REORDERED) */}
+              <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6">
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold tracking-widest text-[#1e3a8a] uppercase bg-blue-50 px-2 py-0.5 rounded">Risk Analysis</span>
+                  <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">A Human Guide to Heat Stress</h3>
+                  <div className="h-1 w-20 bg-blue-900 rounded"></div>
+                  <p className="text-sm text-slate-500 max-w-3xl leading-relaxed">
+                    Heat stress represents the accumulation of environmental heat load on the human body, forcing metabolic and cardiorespiratory systems into critical strain. Under high environmental burdens, the struggle for active thermal equilibrium compromises performance long before catastrophic illness occurs.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Card 1 */}
+                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
+                    <div className="w-9 h-9 rounded bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-100 shadow-3xs">
+                      <HeartPulse className="w-5 h-5 animate-pulse" />
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm">Thermoregulation Limits</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                      Heat stress occurs when the body struggles to maintain a safe internal temperature, exceeding metabolic sweat limits.
+                    </p>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
+                    <div className="w-9 h-9 rounded bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100 shadow-3xs">
+                      <Sliders className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm">Combined Weather Stressors</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                      High air temperatures represent only part of the risk. Combined factors like moisture humidity and direct solar radiation multiply strain.
+                    </p>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
+                    <div className="w-9 h-9 rounded bg-blue-50 text-blue-750 flex items-center justify-center border border-blue-100 shadow-3xs">
+                      <Scale className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm">Exertion Standards</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                      High physical workloads (athletics, manual operations) elevate internal metabolic heat production, raising danger levels.
+                    </p>
+                  </div>
+
+                  {/* Card 4 */}
+                  <div className="border border-slate-100 bg-slate-50/45 p-5 rounded-lg space-y-3">
+                    <div className="w-9 h-9 rounded bg-red-50 text-red-700 flex items-center justify-center border border-red-100 shadow-3xs">
+                      <Flame className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm">Clinical Risks</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                      Severe unmitigated exposure causes rapid dehydration, acute exhaustion, and dangerous medical emergencies like heat stroke.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* NEW SECTION: UNDERSTANDING WBGT (REPLACED AND REORDERED) */}
+              <section className="bg-slate-50 border border-slate-200 rounded-xl p-6 lg:p-10 shadow-xs space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  
+                  {/* Left Column: Explanatory */}
+                  <div className="lg:col-span-12 xl:col-span-5 space-y-4">
+                    <span className="text-[10px] font-bold tracking-widest text-[#1e3a8a] uppercase bg-blue-50 px-2 py-1 rounded font-sans">Thermodynamic Standards</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">How WBGT Measures Heat Load</h3>
+                    <div className="h-1 w-20 bg-blue-900 rounded"></div>
+                    <p className="text-sm font-semibold text-slate-800 leading-relaxed font-sans">
+                      Wet Bulb Globe Temperature (WBGT) is a specialized composite index that reflects the actual physical stress of environmental heat on active individuals.
+                    </p>
+                    <p className="text-xs text-slate-655 leading-relaxed font-normal">
+                      Simple dry-bulb air temperature represents a critical safety blindspot for workers and athletes because it completely ignores the cooling effects of wind and the severe warming impacts of humidity and direct solar radiation.
+                    </p>
+                    <p className="text-xs text-[#334155] leading-relaxed font-normal">
+                      By synthesizing air temperature, humidity, wind speed, and solar radiation into a single value, WBGT provides the global gold standard used by safety organizations to manage outdoor activity risks.
+                    </p>
+
+                    <div className="bg-blue-900 text-blue-50 border border-blue-800 p-4 rounded-xl flex gap-3 shadow-xs items-start mt-2">
+                      <Info className="w-5 h-5 text-blue-300 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300">Composite vs. Air Temp</span>
+                        <p className="text-xs text-blue-100 leading-relaxed">
+                          Two days with identical air temperatures can feel entirely different. WBGT captures the critical differences.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Visual Component Diagram */}
+                  <div className="lg:col-span-12 xl:col-span-7 bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2 font-sans">
+                       Visual Matrix: Component Drivers of WBGT
+                    </h4>
+                    
+                    <p className="text-xs text-slate-505 font-medium font-sans">
+                      Click each element to explore how it registers the thermal burden:
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-2">
+                      {/* Factor 1 */}
+                      <button 
+                        onClick={() => setSelectedWbgtFactor('temp')}
+                        type="button"
+                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
+                          selectedWbgtFactor === 'temp' 
+                            ? 'bg-blue-50 border-blue-400 shadow-xs ring-1 ring-blue-400' 
+                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Thermometer className="w-4 h-4 text-blue-900" />
+                          <span className="text-xs font-bold text-slate-900">Air Temperature</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
+                          Baseline dry-bulb measurement of ambient heat in shaded conditions. Represents the atmospheric temperature.
+                        </p>
+                      </button>
+
+                      {/* Factor 2 */}
+                      <button 
+                        onClick={() => setSelectedWbgtFactor('humid')}
+                        type="button"
+                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
+                          selectedWbgtFactor === 'humid' 
+                            ? 'bg-blue-50 border-blue-400 shadow-xs ring-1 ring-blue-400' 
+                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Droplets className="w-4 h-4 text-blue-600" />
+                          <span className="text-xs font-bold text-slate-900">Humidity (Wet Bulb)</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
+                          Measures cooling via evaporation. Elevated humidity limits sweat evaporation efficacy, compounding physical strain.
+                        </p>
+                      </button>
+
+                      {/* Factor 3 */}
+                      <button 
+                        onClick={() => setSelectedWbgtFactor('sun')}
+                        type="button"
+                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
+                          selectedWbgtFactor === 'sun' 
+                            ? 'bg-blue-50 border-blue-400 shadow-xs ring-1 ring-blue-400' 
+                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-4 h-4 text-amber-600" />
+                          <span className="text-xs font-bold text-slate-900">Solar Radiation</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
+                          Globe temperature calculating direct and reflected solar rays, particularly severe on urban concrete plazas.
+                        </p>
+                      </button>
+
+                      {/* Factor 4 */}
+                      <button 
+                        onClick={() => setSelectedWbgtFactor('wind')}
+                        type="button"
+                        className={`text-left p-3.5 rounded-lg border transition-all focus:outline-none ${
+                          selectedWbgtFactor === 'wind' 
+                            ? 'bg-blue-50 border-blue-400 shadow-xs ring-1 ring-blue-400' 
+                            : 'bg-white border-slate-200 hover:bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Wind className="w-4 h-4 text-emerald-600" />
+                          <span className="text-xs font-bold text-slate-900">Wind Speed</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-normal font-normal">
+                          Governs air motion and convective drying. Faster air currents help dispel skin-boundary humidity pools.
+                        </p>
+                      </button>
+                    </div>
+
+                    {/* Explanatory Details Box */}
+                    <AnimatePresence mode="wait">
+                      {selectedWbgtFactor && (() => {
+                        const info = WBGT_FACTOR_INFO[selectedWbgtFactor];
+                        if (!info) return null;
+                        return (
+                          <motion.div
+                            key={selectedWbgtFactor}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="bg-blue-50/40 border border-blue-200 rounded-xl p-5 space-y-4 shadow-sm"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-100 pb-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${info.dotColor} animate-pulse`} />
+                                <h5 className="font-bold text-xs text-blue-950 tracking-tight uppercase">Selected Factor: {info.name}</h5>
+                              </div>
+                              <span className={`px-2.5 py-0.5 rounded text-[9px] font-extrabold tracking-wide uppercase border bg-white ${info.badgeColor}`}>
+                                {info.influenceLevel}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+                              <div className="space-y-1.5">
+                                <span className="font-bold text-blue-900 uppercase text-[9px] tracking-wider block font-sans">Role in WBGT Calculation</span>
+                                <p className="text-[#334155] leading-relaxed font-sans">{info.role}</p>
+                              </div>
+                              <div className="space-y-1.5">
+                                <span className="font-bold text-blue-900 uppercase text-[9px] tracking-wider block font-sans">Influence on Output</span>
+                                <p className="text-[#334155] leading-relaxed font-sans">{info.influence}</p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })()}
+                    </AnimatePresence>
+
+                    {/* Thermodynamic Synthesis Diagram */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                      <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
+                        <Sliders className="w-4 h-4 text-slate-700" />
+                        <h5 className="font-bold text-xs text-slate-900 font-sans uppercase tracking-tight">Thermodynamic Synthesis Flow Diagram</h5>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center relative">
+                        {/* Column 1: Inputs Block (4 cols) */}
+                        <div className="lg:col-span-4 flex flex-col gap-2">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5 font-sans animate-pulse">Environmental Inputs</span>
+                          
+                          {/* Air Temperature */}
+                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
+                            selectedWbgtFactor === 'temp'
+                              ? 'bg-amber-50 border-amber-305 text-amber-900 scale-[1.02] shadow-2xs font-extrabold'
+                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <Thermometer className="w-3.5 h-3.5 animate-pulse" />
+                              <span className="text-[11px]">Air Temperature</span>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-wider">10% Weight</span>
+                          </div>
+
+                          {/* Humidity */}
+                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
+                            selectedWbgtFactor === 'humid'
+                              ? 'bg-red-550 border-red-400 text-red-900 scale-[1.02] shadow-2xs font-extrabold'
+                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <Droplets className="w-3.5 h-3.5 animate-pulse" />
+                              <span className="text-[11px]">Humidity (Wet Bulb)</span>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-wider">70% Weight</span>
+                          </div>
+
+                          {/* Solar Radiation */}
+                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
+                            selectedWbgtFactor === 'sun'
+                              ? 'bg-amber-50 border-amber-405 text-amber-900 scale-[1.02] shadow-2xs font-extrabold'
+                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <Sun className="w-3.5 h-3.5 animate-pulse" />
+                              <span className="text-[11px]">Solar Radiation</span>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-wider">20% Weight</span>
+                          </div>
+
+                          {/* Wind Speed */}
+                          <div className={`p-2 rounded border flex items-center justify-between transition-all duration-300 ${
+                            selectedWbgtFactor === 'wind'
+                              ? 'bg-emerald-50 border-emerald-405 text-emerald-900 scale-[1.02] shadow-2xs font-extrabold'
+                              : 'bg-white border-slate-150 text-slate-400 opacity-50'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <Wind className="w-3.5 h-3.5 animate-pulse" />
+                              <span className="text-[11px]">Wind Speed</span>
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-wider font-extrabold">Cooling Modifier</span>
+                          </div>
+                        </div>
+
+                        {/* Column 2: Connector path (4 cols) */}
+                        <div className="lg:col-span-4 flex flex-col items-center justify-center py-2 lg:py-0">
+                          <div className="hidden lg:flex w-full items-center justify-between px-2 text-slate-300">
+                            <span className={`h-0.5 flex-1 transition-all duration-300 ${
+                              selectedWbgtFactor ? 'bg-gradient-to-r from-blue-400 to-blue-600' : 'bg-slate-200'
+                            }`} />
+                            <div className="p-1 px-3.5 rounded bg-blue-900 text-white font-mono text-[9px] font-black tracking-widest animate-sine uppercase">
+                              Liljegren Model
+                            </div>
+                            <span className={`h-0.5 flex-1 transition-all duration-300 ${
+                              selectedWbgtFactor ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-slate-200'
+                            }`} />
+                          </div>
+                          
+                          <div className="lg:hidden flex flex-col items-center gap-1 my-1">
+                            <div className="px-3.5 py-1 rounded bg-blue-900 text-white font-mono text-[9px] font-black tracking-widest uppercase">
+                              Liljegren Integration Engine
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Column 3: Output Destination (4 cols) */}
+                        <div className="lg:col-span-4 bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-1.5 shadow-md">
+                          <span className="text-[8px] text-slate-300 block font-bold uppercase tracking-widest">Physiological Burden</span>
+                          <span className="text-sm font-black text-sky-400 font-mono block">Calculated WBGT</span>
+                          <p className="text-[9px] text-slate-300 font-normal leading-normal font-sans pt-1">
+                            Integrates humidity, radiant solar heat, Wind convection speed, and shade temperature into a single dynamic standard.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               {/* NEW SECTION: DATA SOURCES & DISCLAIMER SUMMARY */}
               <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6">
                 <div className="space-y-2">
@@ -1617,11 +1823,11 @@ EQUIDEM Climate Observatory Policy Division.`;
 
                   {/* Source 4 */}
                   <div className="p-4 border border-slate-100 rounded-lg bg-slate-50/30 flex gap-3 text-left">
-                    <div className="p-2.5 bg-slate-100 text-slate-805 rounded w-10 h-10 flex items-center justify-center shrink-0">
+                    <div className="p-2.5 bg-slate-100 text-slate-800 rounded w-10 h-10 flex items-center justify-center shrink-0">
                       <Scale className="w-5 h-5 text-slate-700" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-xs text-slate-955 uppercase font-sans">ACGIH Guidance</h4>
+                      <h4 className="font-bold text-xs text-slate-950 uppercase font-sans">ACGIH Guidance</h4>
                       <p className="text-[10px] text-slate-505 leading-normal font-normal font-sans">
                         Recognized work-rest ratio ACGIH guidelines matching continuous labor limits under heat hazards.
                       </p>
@@ -1664,16 +1870,16 @@ EQUIDEM Climate Observatory Policy Division.`;
                       <div className="p-2 bg-blue-50 border border-blue-100 rounded w-10 h-10 flex items-center justify-center">
                         <FileText className="w-5 h-5 text-blue-900" />
                       </div>
-                      <h4 className="font-bold text-slate-900 text-sm">Download Technical Report</h4>
+                      <h4 className="font-bold text-slate-900 text-sm">Generate Analysis Report</h4>
                       <p className="text-xs text-slate-505 leading-normal">
-                        Detailed policy assessment of June-September outdoor risks, heat mitigation criteria, and human protection guidelines.
+                        Detailed dynamic policy assessment based on active configurations, environmental heat stress indexes, and human safety metrics.
                       </p>
                     </div>
                     <button
-                      onClick={downloadTechnicalReport}
-                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2"
+                      onClick={downloadCurrentAnalysisPDF}
+                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2 cursor-pointer"
                     >
-                      <Download className="w-4 h-4" /> Download Report (.TXT)
+                      <Download className="w-4 h-4" /> Generate PDF Report
                     </button>
                   </div>
 
@@ -1685,14 +1891,14 @@ EQUIDEM Climate Observatory Policy Division.`;
                       </div>
                       <h4 className="font-bold text-slate-900 text-sm">Download Methodology</h4>
                       <p className="text-xs text-slate-505 leading-normal">
-                        Complete details of the reanalysis framework, Wet Bulb calculation model, and meteorological formulations.
+                        Complete details of our downscaling reanalysis framework, Wet Bulb globe calculations, and peer-validated formulations.
                       </p>
                     </div>
                     <button
-                      onClick={downloadMethodology}
-                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2"
+                      onClick={downloadMethodologyPDF}
+                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2 cursor-pointer"
                     >
-                      <Download className="w-4 h-4" /> Download Methodology
+                      <Download className="w-4 h-4" /> Download Methodology PDF
                     </button>
                   </div>
 
@@ -1702,16 +1908,16 @@ EQUIDEM Climate Observatory Policy Division.`;
                       <div className="p-2 bg-emerald-50 border border-emerald-100 rounded w-10 h-10 flex items-center justify-center">
                         <FileSpreadsheet className="w-5 h-5 text-emerald-900" />
                       </div>
-                      <h4 className="font-bold text-slate-900 text-sm">Download Data Dictionary</h4>
+                      <h4 className="font-bold text-slate-900 text-sm">Download Observatory Data</h4>
                       <p className="text-xs text-slate-505 leading-normal">
-                        Technical mappings of the ERA5 fields (temperature, dewpoint, pressure, solar, wind vector metrics) and calculations.
+                        Technical database containing comprehensive host venue climate historical averages and maximum heat indexes (CSV).
                       </p>
                     </div>
                     <button
-                      onClick={downloadDataDictionary}
-                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2"
+                      onClick={downloadSummaryCSV}
+                      className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2 rounded text-xs font-semibold transition flex items-center justify-center gap-2 mt-2 cursor-pointer"
                     >
-                      <Download className="w-4 h-4" /> Download Dictionary
+                      <Download className="w-4 h-4" /> Download Summary CSV
                     </button>
                   </div>
 
@@ -1719,14 +1925,28 @@ EQUIDEM Climate Observatory Policy Division.`;
               </section>
 
               {/* OBSERVATORY HEALTH POLICIES STANDARDS FOOTER CITATIONS */}
-              <section className="text-center py-4 text-xs text-slate-500 max-w-3xl mx-auto space-y-1 italic border-t border-slate-200/60 pt-6">
+              <section className="text-center py-4 text-xs text-slate-500 max-w-4xl mx-auto space-y-2 italic border-t border-slate-200/60 pt-6">
                 <p>This observatory is intended for public assistance of human safety. Historical data metrics and risk zones are sourced directly from climatology records.</p>
-                <div className="flex flex-wrap justify-center gap-4 pt-1 not-italic font-semibold text-slate-400">
-                  <span>Cited standards: WHO Guidance</span>
-                  <span>·</span>
-                  <span>NIOSH Heat Stress recommendations</span>
-                  <span>·</span>
-                  <span>ISO 7243 standards</span>
+                <div className="text-slate-400 font-semibold font-sans not-italic text-sm">
+                  Cited Standards & Data Sources:
+                </div>
+                <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 pt-1 not-italic font-medium text-xs text-slate-500 max-w-2xl mx-auto">
+                  <span className="flex items-center gap-1">
+                    <span className="text-blue-900">•</span>
+                    ACGIH Heat Stress Threshold Values (TLV® Framework)
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-blue-900">•</span>
+                    Liljegren WBGT Heat Stress Model
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-blue-900">•</span>
+                    ERA5 Reanalysis Dataset
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-blue-900">•</span>
+                    NASA POWER Environmental Data
+                  </span>
                 </div>
               </section>
 
@@ -1739,19 +1959,50 @@ EQUIDEM Climate Observatory Policy Division.`;
             <div className="max-w-7xl mx-auto px-6 py-8">
               
               {/* NEW GLOBAL ANALYSIS PANEL */}
-              <div className="sticky top-[116px] md:top-[73px] z-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-5 mb-6 shadow-md transition-shadow duration-200 space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                  <div>
-                    <span className="text-[10px] font-bold text-[#1e3a8a] bg-blue-50 px-2 py-0.5 rounded tracking-wide uppercase">Institutional Query Engine</span>
-                    <h2 className="text-sm font-black text-slate-900 tracking-tight mt-1">Global Re-Analysis Parameters (ACGIH Threshold Target)</h2>
+              <div className={`sticky top-[116px] md:top-[73px] z-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl mb-6 shadow-md transition-all duration-300 ${
+                isPanelCollapsed ? 'p-3 px-5' : 'p-5 space-y-4'
+              }`}>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+                      className="p-1 px-1.5 md:p-1.5 md:px-2.5 hover:bg-slate-100 rounded text-slate-600 hover:text-[#1e3a8a] transition shrink-0 flex items-center gap-1 border border-slate-200 bg-white shadow-3xs text-xs font-semibold font-sans outline-none focus:ring-1 focus:ring-blue-500"
+                      title={isPanelCollapsed ? "Expand Parameters Panel" : "Collapse Parameters Panel"}
+                    >
+                      {isPanelCollapsed ? (
+                        <>
+                          <ChevronDown className="w-3.5 h-3.5 text-[#1e3a8a]" />
+                          <span className="text-[10px] text-slate-700 font-bold uppercase tracking-wider block">Expand</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Collapse</span>
+                        </>
+                      )}
+                    </button>
+                    <div>
+                      <span className="text-[10px] font-bold text-[#1e3a8a] bg-blue-50 px-2 py-0.5 rounded tracking-wide uppercase">Observatory Controls</span>
+                      <h2 className="text-sm font-black text-slate-900 tracking-tight mt-0.5">Global Re-Analysis Parameters (ACGIH Threshold Target)</h2>
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-500 font-medium">
-                    Active State Matrix: <span className="font-mono text-[#1e3a8a] bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded font-bold">{surfaceMode === 'Grass / Artificial Turf' ? 'grass_turf' : 'concrete'}</span> | <span className="font-mono text-[#1e3a8a] bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded font-bold">{analysisPeriod === 'Entire Study Period' ? 'entire_duration' : 'construction_window'}</span> | <span className="font-mono text-[#1e3a8a] bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded font-bold">{analysisView === 'Typical Conditions' ? 'typical_trends' : 'extreme_events'}</span> | <span className="font-mono text-[#1e3a8a] bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded font-bold">{workload.replace(' ', '_').toLowerCase()}</span> | <span className="font-mono text-[#1e3a8a] bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded font-bold font-sans">threshold_{getACGIHThreshold(workload, workRestRegimen).toFixed(1)}c</span>
+                  
+                  {/* Active Matrix Pill Summary */}
+                  <div className="text-[10px] text-slate-500 font-medium flex flex-wrap gap-1 items-center bg-slate-50/50 p-1 rounded-lg border border-slate-100">
+                    <span className="text-slate-400 font-bold px-1.5 uppercase tracking-wider text-[8px]">Matrix Status</span>
+                    <span className="font-mono text-[#1e3a8a] bg-white border border-slate-200/60 shadow-3xs px-2 py-0.5 rounded font-bold">{surfaceMode === 'Grass / Artificial Turf' ? 'grass_turf' : 'concrete'}</span>
+                    <span className="font-mono text-[#1e3a8a] bg-white border border-slate-200/60 shadow-3xs px-2 py-0.5 rounded font-bold">{analysisPeriod === 'Entire Study Period' ? 'entire_duration' : 'construction_window'}</span>
+                    <span className="font-mono text-[#1e3a8a] bg-white border border-slate-200/60 shadow-3xs px-2 py-0.5 rounded font-bold">{analysisView === 'Typical Conditions' ? 'typical_trends' : 'extreme_events'}</span>
+                    <span className="font-mono text-[#1e3a8a] bg-white border border-slate-200/60 shadow-3xs px-2 py-0.5 rounded font-bold">{workload.replace(' ', '_').toLowerCase()}</span>
+                    <span className="font-mono text-emerald-800 bg-emerald-50 border border-emerald-200/60 shadow-3xs px-2 py-0.5 rounded font-bold font-sans">threshold_{formatTemp(getACGIHThreshold(workload, workRestRegimen), tempUnit)}</span>
                   </div>
                 </div>
 
-                {/* Compact Global Analysis Banner */}
-                <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                {!isPanelCollapsed && (
+                  <>
+                    {/* Compact Global Analysis Banner */}
+                    <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-600"></span>
                     <span className="font-semibold text-slate-700">Current Study Window:</span>
@@ -2005,6 +2256,8 @@ EQUIDEM Climate Observatory Policy Division.`;
                     </div>
                   </div>
                 </div>
+                  </>
+                )}
               </div>
               
               {/* STICKY TAB WRAPPER */}
@@ -2020,6 +2273,18 @@ EQUIDEM Climate Observatory Policy Division.`;
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4 shrink-0" /> Overview
+                </button>
+
+                {/* Tab: Heat Risk Guidance */}
+                <button
+                  onClick={() => setActiveTab('guidance')}
+                  className={`py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 select-none focus:outline-none ${
+                    activeTab === 'guidance'
+                      ? 'border-blue-900 text-blue-900'
+                      : 'border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-200'
+                  }`}
+                >
+                  <Scale className="w-4 h-4 shrink-0" /> Understanding Heat Risk
                 </button>
 
                 {/* Tab: Venue Explorer */}
@@ -2068,18 +2333,6 @@ EQUIDEM Climate Observatory Policy Division.`;
                   }`}
                 >
                   <BookOpen className="w-4 h-4 shrink-0" /> Methodology
-                </button>
-
-                {/* Tab: Heat Risk Guidance */}
-                <button
-                  onClick={() => setActiveTab('guidance')}
-                  className={`py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 select-none focus:outline-none ${
-                    activeTab === 'guidance'
-                      ? 'border-blue-900 text-blue-900'
-                      : 'border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-200'
-                  }`}
-                >
-                  <Scale className="w-4 h-4 shrink-0" /> Heat Risk Guidance
                 </button>
 
                 {/* Tab: Downloads */}
@@ -2309,6 +2562,16 @@ EQUIDEM Climate Observatory Policy Division.`;
                               Open map viewer on Title Page <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
+
+                          <MiniHotspotMap
+                            stadiums={filteredStadiums}
+                            activeThreshold={activeThreshold}
+                            tempUnit={tempUnit}
+                            analysisView={analysisView}
+                            selectedStadium={selectedStadium}
+                            onSelectStadium={setSelectedStadium}
+                            setActiveTab={setActiveTab}
+                          />
                         </div>
                       </div>
 
@@ -2395,7 +2658,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                         <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Observatory Location Focus</label>
                         <p className="text-xs text-slate-500 font-medium mb-2.5">Focus the climatological observatory on any match stadium or training base camp</p>
                         <select
-                          className="w-full bg-slate-50 border border-slate-205 rounded p-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
+                          className="w-full bg-slate-50 border border-slate-200 rounded p-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
                           value={activeSelectedStadium ? activeSelectedStadium.key : ''}
                           onChange={(e) => {
                             const found = dashboardData.stadiums.find(s => s.key === e.target.value);
@@ -2467,7 +2730,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                               <div className="flex justify-between">
                                 <span className="text-slate-500 font-semibold">Location Type:</span>
                                 <span className={`px-2 py-0.5 rounded-sm font-bold text-[9px] ${
-                                  selectedStadium.type === 'Match' ? 'bg-blue-100 text-blue-805' : 'bg-rose-100 text-rose-950'
+                                  selectedStadium.type === 'Match' ? 'bg-blue-100 text-blue-800' : 'bg-rose-100 text-rose-950'
                                 }`}>
                                   {selectedStadium.type === 'Match' ? 'Match Stadium' : 'Case Study Site'}
                                 </span>
@@ -2646,20 +2909,44 @@ EQUIDEM Climate Observatory Policy Division.`;
                               const currentMonthObj = MONTHS_DATA.find(m => m.month === explorerMonth);
                               const risk = getACGIHRiskCategory(val, activeThreshold);
                               
+                              const fullMonthName = currentMonthObj ? (() => {
+                                const fullNames: Record<number, string> = {
+                                  1: "January",
+                                  2: "February",
+                                  3: "March",
+                                  4: "April",
+                                  5: "May",
+                                  6: "June",
+                                  7: "July",
+                                  8: "August",
+                                  9: "September",
+                                  10: "October",
+                                  11: "November",
+                                  12: "December"
+                                };
+                                return fullNames[currentMonthObj.month] || currentMonthObj.name;
+                              })() : "";
+
                               let adviceDesc = "Normal activity expected. Perfect athletic operational climate.";
                               if (risk === 'Extreme') adviceDesc = "Extreme risk relative to threshold. Heat illness can strike rapidly. Suspend prolonged outdoor activity and heavy labor.";
                               else if (risk === 'Very High') adviceDesc = "Very high risk relative to threshold. Heat exhaustion likely. Rotate shifts, provide direct air conditioning corridors and salt tab water.";
                               else if (risk === 'High') adviceDesc = "High risk of heat cramps and muscular failures. Regular mandatory cooling breaks inside the shaded areas.";
                               else if (risk === 'Caution') adviceDesc = "Caution risk. Under continuous exposure fatigue begins. Maintain diligent hydration systems.";
 
+                              const isExtreme = analysisView === 'Extreme Events';
+
                               return (
                                 <div className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs transition-all">
                                   <div>
                                     <div className="font-bold text-slate-800 uppercase text-[10px] tracking-widest mb-1">
-                                      {currentMonthObj?.name} Heat Status for {selectedStadium.name}
+                                      {fullMonthName.toUpperCase()} Heat Status for {selectedStadium.name}
                                     </div>
                                     <p className="text-slate-600">
-                                      Historical Average heat index reaches <strong className="text-slate-900">{formatTemp(val, tempUnit)} WBGT</strong> placing this month in the <strong className="text-slate-950 uppercase font-black" style={{ color: getACGIHRiskColorHex(risk) }}>{risk} Risk</strong> category (Relative to ACGIH safety threshold of {formatTemp(activeThreshold, tempUnit)}).
+                                      {isExtreme ? (
+                                        <>The highest observed WBGT during {fullMonthName} reached <strong className="text-slate-900">{formatTemp(val, tempUnit)} WBGT</strong></>
+                                      ) : (
+                                        <>Average {fullMonthName} WBGT conditions reach <strong className="text-slate-900">{formatTemp(val, tempUnit)} WBGT</strong></>
+                                      )} placing this month in the <strong className="text-slate-950 uppercase font-black" style={{ color: getACGIHRiskColorHex(risk) }}>{risk} Risk</strong> category (Relative to ACGIH safety threshold of {formatTemp(activeThreshold, tempUnit)}).
                                     </p>
                                     <p className="text-slate-500 mt-1 italic">
                                       Safety advice: {adviceDesc}
@@ -2781,6 +3068,14 @@ EQUIDEM Climate Observatory Policy Division.`;
                                 </button>
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => {
                                   const val = hRow.monthlyWbgts[m];
+                                  const isExtremeTooltip = analysisView === 'Extreme Events';
+                                  const monthNames: Record<number, string> = {
+                                    1: "January", 2: "February", 3: "March", 4: "April", 
+                                    5: "May", 6: "June", 7: "July", 8: "August", 
+                                    9: "September", 10: "October", 11: "November", 12: "December"
+                                  };
+                                  const mName = monthNames[m] || "";
+                                  const typeLabel = isExtremeTooltip ? "peak" : "average";
                                   return (
                                     <div
                                       key={m}
@@ -2789,7 +3084,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                                         backgroundColor: getACGIHRiskColorHex(getACGIHRiskCategory(val, activeThreshold)),
                                         color: '#fff'
                                       }}
-                                      title={`${name} · ${MONTHS_DATA[m-1].name} average: ${formatTemp(val, tempUnit)} WBGT (${getACGIHRiskCategory(val, activeThreshold)} Risk Category)`}
+                                      title={`${name} · ${mName} ${typeLabel}: ${formatTemp(val, tempUnit)} WBGT (${getACGIHRiskCategory(val, activeThreshold)} Risk Category)`}
                                     >
                                       {formatTemp(val, tempUnit, false)}°
                                     </div>
@@ -2979,7 +3274,11 @@ EQUIDEM Climate Observatory Policy Division.`;
                       })}
                       {filteredEvents.length === 0 && (
                         <div className="bg-white border rounded-xl p-10 text-center italic text-slate-400 shadow-2xs">
-                          No extreme heat records match the filter criteria
+                          {analysisPeriod === 'Construction Period Only' ? (
+                            "No extreme events were identified within the selected construction-period window."
+                          ) : (
+                            "No extreme heat records match the filter criteria"
+                          )}
                         </div>
                       )}
                     </div>
@@ -3199,7 +3498,7 @@ EQUIDEM Climate Observatory Policy Division.`;
                         {/* 8. Study Period */}
                         <section className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-sm">
                           <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
-                            <BookOpen className="w-5 h-5 text-indigo-805" />
+                            <BookOpen className="w-5 h-5 text-indigo-800" />
                             8. Study Period
                           </h3>
                           <div className="text-xs text-slate-605 space-y-3 leading-relaxed font-semibold">
@@ -3217,7 +3516,7 @@ EQUIDEM Climate Observatory Policy Division.`;
 
                         {/* 9. Interpretation */}
                         <section className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-sm">
-                          <h3 className="text-base font-bold text-slate-905 border-b border-slate-100 pb-2.5 flex items-center gap-2">
+                          <h3 className="text-base font-bold text-slate-950 border-b border-slate-100 pb-2.5 flex items-center gap-2">
                             <Scale className="w-5 h-5 text-slate-700" />
                             9. Interpretation
                           </h3>
@@ -3248,8 +3547,8 @@ EQUIDEM Climate Observatory Policy Division.`;
                           <div className="space-y-4 text-xs font-semibold text-slate-600">
                             <div className="p-3 bg-white border border-slate-200 rounded-lg">
                               <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Standard Reference</span>
-                              <span className="text-slate-800 font-bold block">ISO 7243:2017</span>
-                              <p className="text-[10px] text-slate-500 mt-0.5 font-normal">Standardized evaluation of environmental heat stress on working men and women.</p>
+                              <span className="text-slate-800 font-bold block">ACGIH TLV® Framework</span>
+                              <p className="text-[10px] text-slate-500 mt-0.5 font-normal">Standardized evaluation of physical heat strain on active individuals under workload classifications.</p>
                             </div>
 
                             <div className="p-3 bg-white border border-slate-200 rounded-lg">
@@ -3383,31 +3682,39 @@ EQUIDEM Climate Observatory Policy Division.`;
                           <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-1.5">
                             Citations & Validation Sources <Scale className="w-4 h-4 text-blue-700" />
                           </h4>
-                          <p className="text-[10px] uppercase text-slate-405 font-bold mt-1">This observatory references the following verified publications:</p>
+                          <p className="text-[10px] uppercase text-slate-400 font-bold mt-1">This observatory references the following verified publications:</p>
                         </div>
 
                         <div className="space-y-4 text-xs">
                           {/* Citation 1 */}
                           <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-1.5">
-                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">World Health Organization (WHO)</span>
+                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">ACGIH Heat Stress Threshold Values</span>
                             <p className="text-slate-600 leading-relaxed font-semibold italic">
-                              "Continuous heat-hydration standards for outdoor assemblies and recreational events. Joint climate health criteria, 2022."
+                              "Threshold Limit Values (TLVs) for Chemical Substances and Physical Agents & Biological Exposure Indices (BEIs), Workload and Work-Rest Regimens, 2024."
                             </p>
                           </div>
 
                           {/* Citation 2 */}
                           <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-1.5">
-                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">NIOSH Occupational Heat Stress Recommendations</span>
+                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">Liljegren Wet Bulb Globe Temperature (WBGT) Model</span>
                             <p className="text-slate-600 leading-relaxed font-semibold italic">
-                              "Criteria for a recommended standard: Occupational exposure to heat and hot environments, Department of Human Health Services, Publication 2016-106."
+                              "Modeling the Wet Bulb Globe Temperature Using Standard Meteorological Measurements, Journal of Occupational and Environmental Hygiene, 2008."
                             </p>
                           </div>
 
                           {/* Citation 3 */}
                           <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-1.5">
-                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">ISO 7243 Industry Standards</span>
+                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">ERA5 Atmospheric Reanalysis (ECMWF)</span>
                             <p className="text-slate-600 leading-relaxed font-semibold italic">
-                              "Ergonomics of the thermal environment - Assessment of heat stress using the WBGT (wet bulb globe temperature) index, Third Edition, 2017."
+                              "The ERA5 global reanalysis of hourly atmospheric, surface and wave variables, European Centre for Medium-Range Weather Forecasts (ECMWF), 2020."
+                            </p>
+                          </div>
+
+                          {/* Citation 4 */}
+                          <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-1.5">
+                            <span className="font-extrabold text-blue-800 uppercase text-[9px] block">NASA POWER Meteorological and Solar Data</span>
+                            <p className="text-slate-600 leading-relaxed font-semibold italic">
+                              "Prediction Of Worldwide Energy Resources (POWER) project, solar radiation and ambient meteorological parameter records, NASA Langley Research Center."
                             </p>
                           </div>
                         </div>
@@ -3436,50 +3743,135 @@ EQUIDEM Climate Observatory Policy Division.`;
                     className="space-y-6"
                   >
                     
-                    <div className="bg-white border border-[#d9e2ec] rounded-xl p-6 space-y-5 shadow-xs">
+                    <div className="bg-white border border-[#d9e2ec] rounded-xl p-6 space-y-6 shadow-xs">
                       <div>
-                        <h4 className="text-sm font-extrabold text-slate-900 tracking-tight uppercase">Observations and Resource Center</h4>
-                        <p className="text-xs text-slate-500 mt-1">Download raw historical reanalysis text data and official observatory methodologies directly to your local workspace.</p>
+                        <h4 className="text-md font-extrabold text-slate-900 tracking-tight uppercase">Exports & Data Access</h4>
+                        <p className="text-xs text-slate-500 mt-1">Generate reports and export observatory data based on the current analysis configuration.</p>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
-                        <div className="bg-slate-50/50 p-5 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4">
-                          <div className="space-y-1.5">
-                            <span className="font-black text-xs text-blue-800 block uppercase">Technical Report (.TXT)</span>
-                            <p className="text-[11px] text-slate-500 leading-normal">Contains an executive summary of June-September heat risks, stadium hotspots, and civil society reviews.</p>
+                        {/* CARD 1: Export Current Analysis */}
+                        <div className="bg-slate-50/50 p-6 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4 hover:border-slate-200 transition">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 bg-blue-50 text-blue-900 rounded-md">
+                                <FileText className="w-4 h-4" />
+                              </span>
+                              <span className="font-extrabold text-xs text-slate-900 uppercase tracking-tight block">Export Current Analysis</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed">
+                              Generate a PDF snapshot of the current dashboard state. Includes selected configurations (surface, view, period), active ACGIH guidelines thresholds, and aggregate climatological KPI summaries.
+                            </p>
+                            
+                            {/* Live Parameters preview inside the card to make it feel rich and real-time */}
+                            <div className="bg-white border border-slate-150 p-3 rounded-lg text-[9px] text-slate-500 space-y-1 font-mono">
+                              <div className="flex justify-between"><span className="font-semibold">Surface Mode:</span> <span className="text-slate-700 truncate max-w-[120px]">{surfaceMode}</span></div>
+                              <div className="flex justify-between"><span className="font-semibold">Scenario View:</span> <span className="text-slate-700">{analysisView}</span></div>
+                              <div className="flex justify-between"><span className="font-semibold">Threshold:</span> <span className="text-slate-700">{formatTemp(activeThreshold, tempUnit)} WBGT</span></div>
+                            </div>
                           </div>
+                          
                           <button
-                            onClick={downloadTechnicalReport}
-                            className="w-full bg-slate-205 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2 transition flex items-center justify-center gap-1.5"
+                            onClick={downloadCurrentAnalysisPDF}
+                            className="w-full bg-slate-950 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2.5 transition flex items-center justify-center gap-1.5 shadow-3xs cursor-pointer"
                           >
-                            <Download className="w-3.5 h-3.5" /> Download Report
+                            <Download className="w-3.5 h-3.5" /> Generate PDF Report
                           </button>
                         </div>
 
-                        <div className="bg-slate-50/50 p-5 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4">
-                          <div className="space-y-1.5">
-                            <span className="font-black text-xs text-blue-800 block uppercase">Scientific Methodology (.TXT)</span>
-                            <p className="text-[11px] text-slate-500 leading-normal">Defines math indices, dewpoint formulas, solar ray boundary modeling, and meteorological criteria.</p>
+                        {/* CARD 2: Venue Brief */}
+                        <div className="bg-slate-50/50 p-6 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4 hover:border-slate-200 transition">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 bg-sky-50 text-sky-800 rounded-md">
+                                <MapPin className="w-4 h-4" />
+                              </span>
+                              <span className="font-extrabold text-xs text-slate-900 uppercase tracking-tight block">Venue Brief</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed">
+                              Generate a concise venue-specific PDF summary. Isolates geographic configurations, baseline reanalysis historical WBGT models, exceedance ratios, and any active construction segments for our currently focused venue.
+                            </p>
+                            
+                            {activeSelectedStadium ? (
+                              <div className="bg-white border border-slate-150 p-3 rounded-lg text-[9px] text-slate-500 space-y-1 font-mono">
+                                <div className="flex justify-between"><span className="font-semibold">Active Venue:</span> <span className="text-blue-900 font-bold truncate max-w-[124px]">{activeSelectedStadium.stadiumName}</span></div>
+                                <div className="flex justify-between"><span className="font-semibold">Capacity:</span> <span className="text-slate-700">{activeSelectedStadium.capacity.toLocaleString()} seats</span></div>
+                                <div className="flex justify-between"><span className="font-semibold">Base Country:</span> <span className="text-slate-700">{activeSelectedStadium.country}</span></div>
+                              </div>
+                            ) : (
+                              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg text-[10px] text-amber-800">
+                                Select a venue in the dashboard to generate a brief.
+                              </div>
+                            )}
                           </div>
-                          <button
-                            onClick={downloadMethodology}
-                            className="w-full bg-slate-205 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2 transition flex items-center justify-center gap-1.5"
-                          >
-                            <Download className="w-3.5 h-3.5" /> Download Methods
-                          </button>
+
+                          {activeSelectedStadium ? (
+                            <button
+                              onClick={downloadVenueBriefPDF}
+                              className="w-full bg-slate-950 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2.5 transition flex items-center justify-center gap-1.5 shadow-3xs cursor-pointer"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Download Venue Brief
+                            </button>
+                          ) : (
+                            <button
+                              disabled
+                              className="w-full bg-slate-200 text-slate-400 rounded-lg text-xs font-bold py-2.5 flex items-center justify-center gap-1.5 cursor-not-allowed"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Select a venue to generate a venue brief
+                            </button>
+                          )}
                         </div>
 
-                        <div className="bg-slate-50/50 p-5 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4">
-                          <div className="space-y-1.5">
-                            <span className="font-black text-xs text-blue-800 block uppercase">Metadata Specs Details (.TXT)</span>
-                            <p className="text-[11px] text-slate-500 leading-normal">Complete mapping of variable attributes, database structure units, Köppen codes, and elevation parameters.</p>
+                        {/* CARD 3: Data Exports */}
+                        <div className="bg-slate-50/50 p-6 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4 hover:border-slate-200 transition">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 bg-emerald-50 text-emerald-800 rounded-md">
+                                <FileSpreadsheet className="w-4 h-4" />
+                              </span>
+                              <span className="font-extrabold text-xs text-slate-900 uppercase tracking-tight block">Download Datasets</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed">
+                              Export the underlying meteorological reanalysis records compiled from NASA and ERA5. Select from our aggregate summary baseline or localized stadium construction/modernization period logs.
+                            </p>
                           </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button
+                              onClick={downloadSummaryCSV}
+                              className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[10.5px] font-bold py-2.5 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Summary CSV
+                            </button>
+                            <button
+                              onClick={downloadConstructionCSV}
+                              className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[10.5px] font-bold py-2.5 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Construction CSV
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* CARD 4: Methodology */}
+                        <div className="bg-slate-50/50 p-6 rounded-lg border border-slate-100 flex flex-col justify-between space-y-4 hover:border-slate-200 transition">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="p-1.5 bg-amber-50 text-amber-800 rounded-md">
+                                <BookOpen className="w-4 h-4" />
+                              </span>
+                              <span className="font-extrabold text-xs text-slate-900 uppercase tracking-tight block">Methodology & Documentation</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed">
+                              Download the official research methodology report. Explains Liljegren heat-mass balances calculations, ERA5/NASA power downscaling, Köppen zones, of ACGIH safety thresholds, and construction guidelines.
+                            </p>
+                          </div>
+                          
                           <button
-                            onClick={downloadDataDictionary}
-                            className="w-full bg-slate-205 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2 transition flex items-center justify-center gap-1.5"
+                            onClick={downloadMethodologyPDF}
+                            className="w-full bg-slate-950 hover:bg-slate-800 text-white rounded-lg text-xs font-bold py-2.5 transition flex items-center justify-center gap-1.5 shadow-3xs cursor-pointer"
                           >
-                            <Download className="w-3.5 h-3.5" /> Download Specs
+                            <Download className="w-3.5 h-3.5" /> Download Methodology PDF
                           </button>
                         </div>
 
