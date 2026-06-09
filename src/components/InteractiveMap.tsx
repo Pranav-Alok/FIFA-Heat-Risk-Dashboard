@@ -380,9 +380,7 @@ export default function InteractiveMap({
                 style={{
                   left: `${left}px`,
                   top: `${top}px`,
-                  backgroundColor: isSelected
-                    ? '#facc15'
-                    : markerColorHex,,
+                  backgroundColor: markerColorHex,
                   ...sizeStyle,
                 }}
                 onClick={() => onSelectStadium(st)}
