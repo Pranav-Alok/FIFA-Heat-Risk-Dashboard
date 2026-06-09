@@ -886,8 +886,8 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                       <span className="font-extrabold text-red-650 text-sm">{formatTemp(37.6, tempUnit)} WBGT</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-500 uppercase block font-semibold">Participating Teams Represented</span>
-                      <span className="font-extrabold text-orange-655 text-sm">48 Base Camps</span>
+                      <span className="text-[10px] text-slate-500 uppercase block font-semibold">Participating Teams</span>
+                      <span className="font-extrabold text-orange-655 text-sm">48</span>
                     </div>
                   </div>
                 </div>
@@ -905,7 +905,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                       About the Heat Risk Observatory
                     </h3>
                     <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-                      This public-interest research tool maps and evaluates environmental heat stress across the host venues of the 2026 World Cup. By translating raw meteorological records into clear public indicators, the platform helps protect manual workforces, athletes, and event spectators.
+                      This public-interest research tool maps and evaluates environmental heat stress across the host venues of the 2026 World Cup. By translating raw meteorological records into clear public indicators.
                     </p>
                   </div>
                 </div>
@@ -920,7 +920,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">1. What It Is</h4>
                     </div>
                     <p className="text-xs text-slate-605 leading-relaxed font-normal font-sans">
-                      A peer-reviewed climate monitoring dashboard tracking dangerous heat stress levels for official match venues and base camps.
+                      Research-based climate monitoring dashboard tracking dangerous heat stress levels for official match venues and base camps.
                     </p>
                   </div>
 
@@ -944,7 +944,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-tight">3. What to Explore</h4>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed font-normal font-sans">
-                      Search and navigate our live map, hourly heat trajectories, venue risk rankings, and statistical hazard comparisons.
+                      Search and navigate our interactive map, hourly heat trajectories, venue risk rankings, and statistical hazard comparisons.
                     </p>
                   </div>
 
@@ -1035,7 +1035,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                       Key Climatological Insights
                     </h3>
                     <p className="text-xs text-slate-500 font-medium font-sans">
-                      Summary metrics compiled directly from high-resolution meteorological models across Canada, Mexico, and the United States (1991–2026).
+                       Summary metrics compiled directly from hourly WBGT reconstructions across FIFA 2026 host venues between January 2024 and 28 May 2026.
                     </p>
                   </div>
                 </div>
@@ -1166,89 +1166,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                 />
               </section>
 
-                       {/* NEW SECTION: HEAT-RISK CLASSIFICATIONS */}
-              <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold tracking-widest text-[#1e3a8a] uppercase bg-blue-50 px-2 py-0.5 rounded">Risk Hierarchy</span>
-                  <h3 className="text-2xl font-extrabold text-[#111827] tracking-tight">Dynamic ACGIH Heat-Risk Classifications</h3>
-                  <div className="h-1 w-20 bg-blue-900 rounded"></div>
-                  <p className="text-sm text-slate-500 max-w-3xl leading-relaxed font-sans">
-                    The Observatory segments heat exposure records into five safety classifications based on your active parameters.
-                    Selected Workload: <strong className="text-slate-900">{workload}</strong> | Selected Regimen: <strong className="text-slate-900">{workRestRegimen}</strong> | Current ACGIH Threshold Target: <strong className="text-[#10b981] font-mono bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">{formatTemp(getACGIHThreshold(workload, workRestRegimen), tempUnit)} WBGT</strong>.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {(() => {
-                    const T = getACGIHThreshold(workload, workRestRegimen);
-                    const acgihCategories = [
-                      {
-                        level: 'Safe',
-                        range: `< ${formatTemp(T - 3.0, tempUnit, false)}°`,
-                        effects: 'Permissible environmental zone for prolonged occupational labor without mandatory physiological cooling intervals. Hydration on demands holds.',
-                        badgeStyles: 'bg-emerald-50 text-emerald-800 border-emerald-250',
-                        dotColorClass: 'bg-[#2f855a]',
-                        label: 'Sustained Work Safe',
-                      },
-                      {
-                        level: 'Caution',
-                        range: `${formatTemp(T - 3.0, tempUnit, false)}–${formatTemp(T, tempUnit, false)}°`,
-                        effects: 'Increased thermal load. Worker core temperature should be monitored; standard hydration loops of 250ml per 20 minutes are recommended.',
-                        badgeStyles: 'bg-amber-50 text-amber-800 border-amber-250',
-                        dotColorClass: 'bg-[#f4d35e]',
-                        label: 'Monitor Hydration',
-                      },
-                      {
-                        level: 'High',
-                        range: `${formatTemp(T, tempUnit, false)}–${formatTemp(T + 2.0, tempUnit, false)}°`,
-                        effects: `ACGIH Occupational Exposure Limit threshold exceeded (${formatTemp(T, tempUnit)}). Enforced heat mitigation plans and work-rest regimen rotations must be strictly initiated.`,
-                        badgeStyles: 'bg-orange-50 text-orange-950 border-orange-255',
-                        dotColorClass: 'bg-[#f28c28]',
-                        label: 'Shaded Pauses',
-                      },
-                      {
-                        level: 'Very High',
-                        range: `${formatTemp(T + 2.0, tempUnit, false)}–${formatTemp(T + 4.0, tempUnit, false)}°`,
-                        effects: 'Severely elevated risk of heat cramps, exhaustion, and physical decompensation. Operational field supervision and buddy systems are mandatory.',
-                        badgeStyles: 'bg-red-50 text-red-800 border-red-250',
-                        dotColorClass: 'bg-[#c1292e]',
-                        label: 'Mandate Limit Shifts',
-                      },
-                      {
-                        level: 'Extreme',
-                        range: `> ${formatTemp(T + 4.0, tempUnit, false)}°`,
-                        effects: `Dangerous work environment. Core body heat generation matches heat stroke threshold if direct exertion continues under high metabolic load. Stop all non-critical work.`,
-                        badgeStyles: 'bg-rose-950 text-rose-100 border-rose-900',
-                        dotColorClass: 'bg-[#6a040f]',
-                        label: 'Halt Outdoor Physicals',
-                      }
-                    ];
-
-                    return acgihCategories.map((tr) => (
-                      <div key={tr.level} className="flex flex-col md:flex-row items-stretch md:items-center justify-between border border-slate-100 rounded-lg overflow-hidden shrink-0 shadow-2xs hover:border-slate-200 transition">
-                        {/* Threshold Level badge info */}
-                        <div className="w-full md:w-60 p-4 border-b md:border-b-0 md:border-r border-slate-100 flex items-center justify-between font-bold bg-slate-50/55 shadow-3xs shrink-0">
-                          <div className="flex items-center gap-2.5">
-                            <span className={`w-3 h-3 rounded-full ${tr.dotColorClass} shrink-0`}></span>
-                            <span className="text-sm text-slate-900 font-sans">{tr.level}</span>
-                          </div>
-                          <span className="text-xs text-slate-500 font-bold tracking-tight font-mono">{tr.range}</span>
-                        </div>
-                        {/* Plain language interpretation column */}
-                        <div className="flex-1 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
-                          <p className="text-xs text-slate-655 leading-relaxed pr-4 font-normal font-sans">
-                            {tr.effects}
-                          </p>
-                          <span className={`inline-flex self-start md:self-center px-2.5 py-1 text-[9px] font-extrabold uppercase border rounded tracking-widest whitespace-nowrap shrink-0 ${tr.badgeStyles}`}>
-                            {tr.label}
-                          </span>
-                        </div>
-                      </div>
-                    ));
-                  })()}
-                </div>
-              </section>
-
+              
               {/* NEW SECTION: HOW HEAT EXPOSURE WAS ASSESSED */}
               <section className="bg-white border border-slate-200 rounded-xl p-6 lg:p-10 shadow-sm space-y-6 relative overflow-hidden">
                 <div className="space-y-2">
@@ -1274,7 +1192,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                     <span className="text-[10px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded font-mono">REANALYSIS</span>
                     <h4 className="text-xs font-bold text-slate-955 uppercase tracking-tight font-sans">ERA5 & NASA POWER Data</h4>
                     <p className="text-xs text-slate-505 leading-relaxed font-normal font-sans">
-                      Meteorological inputs are obtained from ERA5 and NASA POWER datasets to reconstruct 35-year microclimate baselines.
+                      Meteorological inputs from ERA5 reanalysis and NASA POWER datasets are integrated to estimate hourly wet-bulb globe temperature (WBGT), humidity, solar radiation, and wind conditions across FIFA World Cup 2026 host venues.
                     </p>
                   </div>
                   {/* Step 3 */}
@@ -1367,8 +1285,8 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                           Ground albedos are calibrated differently based on the surface layer:
                         </p>
                         <ol className="list-decimal pl-4 space-y-2 font-sans">
-                          <li><strong>Field Turf (Well-Irrigated Grass)</strong>: Elevated 0.23 albedo with active soil latent cooling, introducing cooling reductions of 1.25°C to 2.4°C over model environments.</li>
-                          <li><strong>Concrete Plaza Surfaces</strong>: Absorptive 0.15 albedo with negligible latent cooling capacity, driving strong thermal storage blocks that amplify local WBGT results by up to 4.2°C under full sunshine.</li>
+                          <li><strong>Field Turf (Well-Irrigated Grass)</strong>: Elevated 0.21 albedo with active soil latent cooling, introducing cooling reductions of 1.25°C to 2.4°C over model environments.</li>
+                          <li><strong>Concrete Plaza Surfaces</strong>: Absorptive 0.35 albedo with negligible latent cooling capacity, driving strong thermal storage blocks that amplify local WBGT results by up to 4.2°C under full sunshine.</li>
                         </ol>
 
                         <div className="p-3 bg-amber-50 border border-amber-200 rounded text-amber-900 text-[10px]">
@@ -1462,7 +1380,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                   <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">A Human Guide to Heat Stress</h3>
                   <div className="h-1 w-20 bg-blue-900 rounded"></div>
                   <p className="text-sm text-slate-500 max-w-3xl leading-relaxed">
-                    Heat stress represents the accumulation of environmental heat load on the human body, forcing metabolic and cardiorespiratory systems into critical strain. Under high environmental burdens, the struggle for active thermal equilibrium compromises performance long before catastrophic illness occurs.
+                    Workplace heat stress describes circumstances under which a worker's body accumulates heat due to the combined effects of metabolic heat, environmental factors and clothing worn. Workplace heat stress causes physiological heat strain in the body that can lead to exhaustion, pathological conditions and death.(WHO, 2025)
                   </p>
                 </div>
 
@@ -1496,7 +1414,7 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                     </div>
                     <h4 className="font-bold text-slate-900 text-sm">Exertion Standards</h4>
                     <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                      High physical workloads (athletics, manual operations) elevate internal metabolic heat production, raising danger levels.
+                      High physical workload elevate internal metabolic heat production, raising danger levels.
                     </p>
                   </div>
 
@@ -2966,17 +2884,17 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
                           <div className="bg-slate-900 text-slate-100 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-850">
                             <div>
                               <h4 className="text-sm font-bold text-slate-50 flex items-center gap-2">
-                                <FileCode className="text-yellow-400 w-5 h-5" /> Generate Venue Technical Dossier
+                                <FileCode className="text-yellow-400 w-5 h-5" /> Generate Venue Technical Report
                               </h4>
                               <p className="text-slate-400 text-xs mt-1">
-                                Assemble all historical metrics, coordinates, elevations, and risk warnings of {selectedStadium.name} into an official policy-ready assessment dossier.
+                                Assemble all historical metrics, coordinates, elevations, and risk warnings of {selectedStadium.name} into an technical assessment report.
                               </p>
                             </div>
                             <button
                               onClick={() => downloadVenueReport(selectedStadium)}
                               className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold py-2.5 px-4 transition self-start md:self-auto flex items-center gap-1.5 shrink-0 shadow-sm"
                             >
-                              <Download className="w-4 h-4" /> Download Local Dossier
+                              <Download className="w-4 h-4" /> Download Technical Report
                             </button>
                           </div>
 
@@ -3915,6 +3833,14 @@ Under the active occupational safety parameters (ACGIH threshold of ${formatTemp
           <div className="space-y-1">
             <h4 className="font-extrabold text-slate-800">EQUIDEM FIFA 2026 Heat Risk Observatory</h4>
             <p>© 2026 EQUIDEM. This observatory was developed to assess heat exposure risks associated with FIFA 2026 host venues, training sites, and related construction activities using publicly available climate and environmental data sources.</p>
+            <p className="text-slate-600">
+              For inquiries, feedback, or collaboration opportunities:
+              <a
+                href="mailto:info@equidem.org"
+                className="ml-1 text-blue-600 hover:underline font-medium"
+                >
+                info@equidem.org
+              </a></p>
           </div>
           <div className="flex flex-wrap gap-4 text-slate-400 font-semibold font-mono text-[10px]">
             <span>Version: 3.1.2026</span>
