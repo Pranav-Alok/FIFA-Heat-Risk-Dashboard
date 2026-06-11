@@ -23,6 +23,7 @@ export interface Stadium {
   name: string;
   stadiumName: string; // original name from CSV
   country: string;
+  city?: string;
   type: 'Match' | 'Training';
   roof: string;
   newlyConstructed: boolean;
@@ -722,6 +723,29 @@ export const STADIUMS_DATA: Stadium[] = [
   }
 ];
 
+STADIUMS_DATA.forEach(s => {
+  const cityMap: { [key: string]: string } = {
+    "HardRock_Miami": "Miami",
+    "BBVA_Monterrey": "Monterrey",
+    "NRG_Houston": "Houston",
+    "Mansfield_TX": "Mansfield",
+    "Akron_Guadalajara": "Guadalajara",
+    "ATT_Dallas": "Dallas",
+    "SoFi_LA": "Los Angeles",
+    "Azteca_MexicoCity": "Mexico City",
+    "Levis_SF": "San Francisco",
+    "MercedesBenz_Atlanta": "Atlanta",
+    "Arrowhead_KC": "Kansas City",
+    "LincolnFin_Philly": "Philadelphia",
+    "MetLife_NYNJ": "New York / New Jersey",
+    "Lumen_Seattle": "Seattle",
+    "BCPlace_Vancouver": "Vancouver",
+    "Gillette_Boston": "Boston",
+    "BMOField_Toronto": "Toronto"
+  };
+  s.city = cityMap[s.key] || "";
+});
+
 // Re-structured monthly climatological curves
 export const MONTHS_DATA: MonthProfile[] = [
   { month: 1, name: "Jan", avgWBGT: 4.98, maxWBGT: 18.2, avgTemp: 6.58, avgRH: 75.8, avgSolar: 111.7 },
@@ -922,12 +946,13 @@ export interface DashboardDataset {
   hours: HourProfile[];
   extremeEvents: ExtremeEvent[];
   heatmap: StadiumMonthHeatmap[];
+  selectedMonthly?: any[];
 }
 
 /**
  * Creates or retrieves the dataset matching the active parameter configuration.
- * Recalculates metrics based on dynamic ACGIH threshold filters to keep
- * dashboards strictly updated with workload/rest occupational exposure.
+ * Recalculates metrics based on dynamic safety threshold filters to keep
+ * dashboards strictly updated with workload/rest safety exposure.
  */
 export function getDashboardData(params: QueryParameters): DashboardDataset {
   const { surfaceMode, analysisPeriod, analysisView, workload, workRestRegimen } = params;
@@ -1147,5 +1172,6 @@ export function getDashboardData(params: QueryParameters): DashboardDataset {
     hours: scaledHours,
     extremeEvents: mergedEvents,
     heatmap: mergedHeatmap,
+    selectedMonthly,
   };
 }

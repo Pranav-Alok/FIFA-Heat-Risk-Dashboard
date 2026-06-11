@@ -11,7 +11,7 @@ interface MiniHotspotMapProps {
   analysisView: string;
   selectedStadium: Stadium | null;
   onSelectStadium: (stadium: Stadium) => void;
-  setActiveTab: (tab: 'overview' | 'explorer' | 'seasonal' | 'extremes' | 'methodology' | 'guidance' | 'downloads') => void;
+  setActiveTab: (tab: 'general' | 'stadium' | 'extremes' | 'methodology') => void;
 }
 
 // Projection math for OpenStreetMap tiles (Web Mercator)
@@ -174,7 +174,7 @@ export default function MiniHotspotMap({
 
   const handleMarkerClick = (st: Stadium) => {
     onSelectStadium(st);
-    setActiveTab('explorer');
+    setActiveTab('stadium');
   };
 
   return (

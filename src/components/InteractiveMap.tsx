@@ -269,7 +269,7 @@ export default function InteractiveMap({
               <span className="w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm bg-orange-500 shrink-0 mt-1"></span>
               <div>
                 <div className="text-xs font-bold text-slate-700">Training / Base Camps (48)</div>
-                <div className="text-[10px] text-slate-500 leading-tight">Smaller orange markers representing assigned team training locations. These locations are shown for geographical context only and are not included in climatology calculations.</div>
+                <div className="text-[10px] text-slate-500 leading-tight">Smaller orange markers representing assigned team training locations. These locations are shown for geographical context only and are not included in core heat calculations.</div>
               </div>
             </div>
             <div className="flex items-start gap-2.5">
@@ -592,7 +592,7 @@ export default function InteractiveMap({
 
     {/* Landing Page Map Explanatory Text */}
     <div className="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-4 leading-relaxed font-medium">
-      Training and base camp locations are displayed for geographical context and team assignment purposes. Heat-risk analyses and climatology statistics are currently available only for FIFA match venues and the Mansfield case-study site.
+      Training and base camp locations are displayed for geographical context and team assignment purposes. Heat-risk analyses and historical heat statistics are currently available only for FIFA match venues and the Mansfield case-study site.
     </div>
   </div>
   );

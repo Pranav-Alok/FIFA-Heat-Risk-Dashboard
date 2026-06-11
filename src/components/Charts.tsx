@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Stadium, MonthProfile, HourProfile, getACGIHRiskCategory } from '../data';
-import { HelpCircle, Waves } from 'lucide-react';
+import { HelpCircle, Waves, Activity } from 'lucide-react';
 import { TempUnit, formatTemp } from '../tempUnit';
 
 // Custom Tooltip component for hover states
@@ -292,7 +292,7 @@ export function MonthlyComboChart({ months, title, activeThreshold, tempUnit }: 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
         <div>
           <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1 uppercase tracking-wide font-sans">
-            Annual Climatology Profile
+            Annual Weather Profile
           </h4>
           <p className="text-[11px] text-slate-500 font-medium">{title}</p>
         </div>
@@ -376,7 +376,7 @@ export function MonthlyComboChart({ months, title, activeThreshold, tempUnit }: 
                 textAnchor="end"
                 className="font-sans"
               >
-                OCCUPATIONAL LIMIT ({formatTemp(activeThreshold, tempUnit)} WBGT)
+                SAFETY THRESHOLD ({formatTemp(activeThreshold, tempUnit)} WBGT)
               </text>
             </g>
           )}
@@ -744,7 +744,7 @@ export function HourlyTrendChart({ hours, title, analysisView, activeThreshold, 
                       items: [
                         { label: isExtreme ? "Peak WBGT Stress" : "Avg WBGT Stress", value: formatTemp(currentWBGT, tempUnit) },
                         { label: isExtreme ? "Peak Air Temp" : "Avg Air Temp", value: formatTemp(h.avgTemp, tempUnit) },
-                        { label: "Occupational OEL", value: formatTemp(activeThreshold, tempUnit) },
+                        { label: "Safety Threshold", value: formatTemp(activeThreshold, tempUnit) },
                         { label: "Risk Category", value: cat }
                       ]
                     });
@@ -812,3 +812,261 @@ export function HourlyTrendChart({ hours, title, analysisView, activeThreshold, 
     </div>
   );
 }
+
+interface MonthlyRiskTrendChartProps {
+  months: MonthProfile[];
+  activeThreshold: number;
+  tempUnit: TempUnit;
+}
+
+export function MonthlyRiskTrendChart({ months, activeThreshold, tempUnit }: MonthlyRiskTrendChartProps) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  
+  const chartW = 750;
+  const chartH = 280;
+  const padding = { top: 25, right: 45, bottom: 35, left: 55 };
+  
+  const plotW = chartW - padding.left - padding.right;
+  const plotH = chartH - padding.top - padding.bottom;
+  const maxTempScale = 40.0;
+  
+  const thresholdY = padding.top + plotH - ((activeThreshold / maxTempScale) * plotH);
+  
+  // Construct points for Avg WBGT line and Max WBGT line
+  const avgPoints = months.map((m, i) => {
+    const x = padding.left + i * (plotW / (months.length - 1));
+    const y = padding.top + plotH - ((m.avgWBGT || 0) / maxTempScale) * plotH;
+    return { x, y, value: m.avgWBGT, name: m.name };
+  });
+  
+  const maxPoints = months.map((m, i) => {
+    const x = padding.left + i * (plotW / (months.length - 1));
+    const y = padding.top + plotH - ((m.maxWBGT || 0) / maxTempScale) * plotH;
+    return { x, y, value: m.maxWBGT, name: m.name };
+  });
+  
+  // Find peak month in avgPoints
+  const peakMonth = [...months].sort((a,b) => b.avgWBGT - a.avgWBGT)[0];
+  const lowestMonthAvg = [...months].sort((a, b) => a.avgWBGT - b.avgWBGT)[0];
+  const exceedPeakMonths = months.filter(m => m.maxWBGT >= activeThreshold).map(m => m.name);
+  
+  return (
+    <div className="relative bg-white p-5 border border-slate-200 rounded-xl shadow-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans flex items-center gap-2">
+            <Activity className="w-4 h-4 text-rose-600 animate-pulse" /> Monthly Risk Trend
+          </h4>
+          <p className="text-[11px] text-slate-550 font-medium">Climatological curve and severe peak limits across months (Jan-Dec)</p>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-1.5 text-[#1e3a8a]">
+            <span className="w-3 h-3 rounded-full bg-[#1e3a8a] inline-block"></span>
+            <span>Average WBGT</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-rose-600">
+            <span className="w-3 h-3 rounded-full bg-rose-600 inline-block"></span>
+            <span>Peak WBGT</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-red-650 font-bold">
+            <span className="w-4 border-t-2 border-dashed border-red-500 inline-block"></span>
+            <span>Safety Threshold ({formatTemp(activeThreshold, tempUnit)})</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto scrollbar-thin">
+        <svg width="100%" height={chartH} viewBox={`0 0 ${chartW} ${chartH}`} className="min-w-[620px] overflow-visible">
+          {/* Y-Axis Grid Lines & Temperatures */}
+          {[10, 20, 30, 40].map((val) => {
+            const y = padding.top + plotH - ((val / maxTempScale) * plotH);
+            return (
+              <g key={`grid-${val}`}>
+                <line x1={padding.left} y1={y} x2={chartW - padding.right} y2={y} stroke="#f1f5f9" strokeWidth={1} />
+                <text x={padding.left - 10} y={y + 4} fill="#94a3b8" fontSize="10" textAnchor="end" fontWeight="bold" className="font-mono">
+                  {formatTemp(val, tempUnit)}
+                </text>
+              </g>
+            );
+          })}
+          
+          {/* X-Axis labels */}
+          {months.map((m, i) => {
+            const x = padding.left + i * (plotW / (months.length - 1));
+            return (
+              <g key={`x-${m.month}`}>
+                <line x1={x} y1={padding.top + plotH} x2={x} y2={padding.top + plotH + 5} stroke="#cbd5e1" strokeWidth={1} />
+                <text x={x} y={padding.top + plotH + 18} fill="#64748b" fontSize="10" textAnchor="middle" fontWeight="bold" className="font-sans">
+                  {m.name}
+                </text>
+              </g>
+            );
+          })}
+          
+          {/* Active threshold line */}
+          {activeThreshold <= maxTempScale && (
+            <g>
+              <line
+                x1={padding.left}
+                y1={thresholdY}
+                x2={chartW - padding.right}
+                y2={thresholdY}
+                stroke="#dc2626"
+                strokeWidth={1.5}
+                strokeDasharray="4 3"
+              />
+              <text
+                x={chartW - padding.right - 10}
+                y={thresholdY - 6}
+                fill="#dc2626"
+                fontSize="8"
+                fontWeight="extrabold"
+                textAnchor="end"
+              >
+                SAFETY THRESHOLD ({formatTemp(activeThreshold, tempUnit)} WBGT)
+              </text>
+            </g>
+          )}
+          
+          {/* Avg WBGT Line path */}
+          <path
+            d={avgPoints.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ')}
+            fill="none"
+            stroke="#1e3a8a"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+          />
+          
+          {/* Max WBGT Line path */}
+          <path
+            d={maxPoints.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ')}
+            fill="none"
+            stroke="#ef4444"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+          />
+          
+          {/* Interactivity circles */}
+          {months.map((m, i) => {
+            const pAvg = avgPoints[i];
+            const pMax = maxPoints[i];
+            const isHovered = hoveredIdx === i;
+            
+            return (
+              <g key={`dots-${i}`}>
+                {/* Avg WBGT dot */}
+                <circle
+                  cx={pAvg.x}
+                  cy={pAvg.y}
+                  r={isHovered ? 6 : 4}
+                  fill="#1e3a8a"
+                  stroke="#ffffff"
+                  strokeWidth={1.5}
+                  className="transition-all duration-150"
+                />
+                {/* Max WBGT dot */}
+                <circle
+                  cx={pMax.x}
+                  cy={pMax.y}
+                  r={isHovered ? 6 : 4}
+                  fill="#ef4444"
+                  stroke="#ffffff"
+                  strokeWidth={1.5}
+                  className="transition-all duration-150"
+                />
+                
+                {/* Overlay hover intercept sector */}
+                <rect
+                  x={pAvg.x - 15}
+                  y={padding.top}
+                  width={30}
+                  height={plotH}
+                  fill="transparent"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredIdx(i)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                />
+                
+                {/* Value labels on hover */}
+                {isHovered && (
+                  <g pointerEvents="none">
+                    <rect
+                      x={pAvg.x - 65}
+                      y={Math.max(padding.top, Math.min(pAvg.y, pMax.y) - 62)}
+                      width={130}
+                      height={54}
+                      fill="#0f172a"
+                      rx={6}
+                      className="shadow-md"
+                    />
+                    <text x={pAvg.x} y={Math.max(padding.top + 13, Math.min(pAvg.y, pMax.y) - 49)} fill="#ffffff" fontSize="9" textAnchor="middle" fontWeight="black">
+                      {m.name} Summary
+                    </text>
+                    <text x={pAvg.x} y={Math.max(padding.top + 26, Math.min(pAvg.y, pMax.y) - 36)} fill="#38bdf8" fontSize="8.5" textAnchor="middle" fontWeight="bold">
+                      Avg: {formatTemp(m.avgWBGT, tempUnit)}
+                    </text>
+                    <text x={pAvg.x} y={Math.max(padding.top + 39, Math.min(pAvg.y, pMax.y) - 23)} fill="#f87171" fontSize="8.5" textAnchor="middle" fontWeight="bold">
+                      Peak Max: {formatTemp(m.maxWBGT, tempUnit)}
+                    </text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-150 pt-5 font-sans">
+        {/* Peak Month */}
+        <div className="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 space-y-1">
+          <span className="text-slate-400 font-bold uppercase text-[9.5px] block tracking-wide">Peak Month (Highest Risk)</span>
+          <span className="text-sm font-extrabold text-rose-600 block">
+            {peakMonth.name}
+          </span>
+          <span className="text-[11px] text-slate-505 font-semibold block leading-tight">
+            Avg: {formatTemp(peakMonth.avgWBGT, tempUnit)}
+            <br />
+            Peak: {formatTemp(peakMonth.maxWBGT, tempUnit)}
+          </span>
+        </div>
+
+        {/* Lowest Risk Month */}
+        <div className="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 space-y-1">
+          <span className="text-slate-400 font-bold uppercase text-[9.5px] block tracking-wide">Lowest Risk Month</span>
+          <span className="text-sm font-extrabold text-emerald-700 block">
+            {lowestMonthAvg.name}
+          </span>
+          <span className="text-[11px] text-slate-505 font-semibold block leading-tight">
+            Avg: {formatTemp(lowestMonthAvg.avgWBGT, tempUnit)}
+            <br />
+            Peak: {formatTemp(lowestMonthAvg.maxWBGT, tempUnit)}
+          </span>
+        </div>
+
+        {/* Exceedance Months */}
+        <div className="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 space-y-1">
+          <span className="text-slate-400 font-bold uppercase text-[9.5px] block tracking-wide">Exceedance Months</span>
+          <span className="text-sm font-extrabold text-slate-800 block truncate">
+            {exceedPeakMonths.length > 0 ? exceedPeakMonths.join(', ') : 'None'}
+          </span>
+          <span className="text-[11px] text-slate-505 font-semibold block leading-tight">
+            {exceedPeakMonths.length} months &ge; safety threshold ({formatTemp(activeThreshold, tempUnit)})
+          </span>
+        </div>
+
+        {/* Seasonal Pattern */}
+        <div className="bg-slate-50/70 border border-slate-200/60 rounded-xl p-3.5 space-y-1">
+          <span className="text-slate-400 font-bold uppercase text-[9.5px] block tracking-wide">Seasonal Risk Pattern</span>
+          <span className="text-sm font-extrabold text-slate-800 block">
+            Summer - Biased
+          </span>
+          <span className="text-[11px] text-slate-505 font-semibold block leading-tight">
+            Rises in May, critical in Jul/Aug, sharp decay from October.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
